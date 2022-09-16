@@ -78,14 +78,14 @@ wsConnect()
 	   FAKE EVENT (MIDI/OSC LEARN)
 –––––––––––––––––––– */
 
-function fakeEvent(midiNote, oscPath) 
+function fakeEvent(band) 
 {
 	if(ws.readyState == 1)
 	{
 		let data = {
 			'type': 'test',
-			'note': midiNote,
-			'osc': oscPath
+			'band': band,
+			'value': 64
 		}
 		ws.send(JSON.stringify( data ));
 	}

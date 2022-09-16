@@ -12,12 +12,12 @@ function linearMap(x, in_range, out_range) {
   return out
 }
 
-let notes = {
-  "raw": 64,
-  "alpha": 65,
-  "beta": 66,
-  "gamma": 67,
-  "theta": 68
+let channels = {
+  "raw": 1,
+  "alpha": 2,
+  "beta": 3,
+  "gamma": 4,
+  "theta": 5
 }
 
 /* ----------------------------------------------------------------------------------------------------
@@ -33,13 +33,24 @@ console.log('Virtual MIDI port "DreamMidi" created')
 console.log('\traw data will be sent as velocity on channel=1 / note=64')
 console.log('\tvalue is normalized between 0-127 using dynamic max value')
 
-function delayedRawMidi(i, note, value) {
+function delayedRawMidi(i, channel, value) 
+{
   setTimeout(function() {
+    
+    // Note 
     midi.send('noteon', {
-      note: note,
-      velocity: value,
-      channel: 1
+      note: value,
+      velocity: 100,
+      channel: channel
     });
+
+    // CC 64
+    midi.send('cc', {
+      controller: 64,
+      value: value,
+      channel: channel
+    });
+
     // console.log(value)
   }, 1000/256 * i);
 }
@@ -141,9 +152,11 @@ wss.on("connection", ws => {
         // console.log(data) 
 
         // TESTS
-        if ('type' in data && data['type'] == 'test') {
-          if ('note' in data && data['note']) delayedRawMidi(0, data['note'], 127)
-          if ('osc' in data && data['osc'])   delayedRawOSC(0, data['osc'], 127)
+        if ('type' in data && data['type'] == 'test') 
+        {
+          if (data['band'] in channels)
+            delayedRawMidi(0, channels[data['band']], data['value'])
+          delayedRawOSC(0, '/'+data['band'], data['value'])
           return
         } 
 
@@ -160,17 +173,16 @@ wss.on("connection", ws => {
         // MIDI/OSC OUT
         for (var i in filtered) {
           let value = Math.floor((Math.abs(filtered[i])/megaMax)*127)
-          delayedRawMidi(i, 64, value)
+          delayedRawMidi(i, channels['raw'], value)
           delayedRawOSC(i, '/raw', filtered[i])
         }
 
         for (var b in bands) 
         {
-          if (b in notes) {
+          if (b in channels) {
             let value = Math.round(linearMap(bands[b], ranges[b][0], ranges[b][1]))
-            let note = notes[b]
-            delayedRawMidi(i, note, value)
-            console.log('MIDI: ', b, '\t', note, value)
+            delayedRawMidi(i, channels[b], value)
+            console.log('MIDI ch. '+channels[b]+' note + CC64: ', b, '\t', value)
           }
 
           delayedRawOSC(i, '/'+b, bands[b])
