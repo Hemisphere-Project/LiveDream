@@ -20,6 +20,15 @@ let channels = {
   "theta": 5
 }
 
+const broadcastAddress = require('broadcast-address');
+let broadcast = '127.0.0.1'
+try {
+  broadcast = broadcastAddress('en0');
+}
+catch(err) {
+}
+console.log('Broadcast OSC: ', broadcast)
+
 /* ----------------------------------------------------------------------------------------------------
  * Virtual MIDI Device
  * Created: 16/06/22 by Thomas BOHL
@@ -92,7 +101,7 @@ function delayedRawOSC(i, path, value) {
               value: value
           }
       ]
-    }, "127.0.0.1", 3737);
+    }, broadcast, 3737);
   }, 1000/256 * i);
 }
 
@@ -183,7 +192,7 @@ wss.on("connection", ws => {
           if (b in channels) {
             let value = Math.round(linearMap(bands[b], ranges[b][0], ranges[b][1]))
             delayedRawMidi(i, channels[b], value)
-            console.log('MIDI ch. '+channels[b]+' note + CC64: ', b, '\t', value)
+            console.log('MIDI ch. '+channels[b]+': ', b, '\t', value)
           }
 
           delayedRawOSC(i, '/'+b, bands[b])
