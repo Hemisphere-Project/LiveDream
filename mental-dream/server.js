@@ -138,7 +138,7 @@ wss.on("connection", ws => {
 
         //Parses receive data as json
         const data = JSON.parse(buffer)
-        // console.log(data)
+        // console.log(data) 
 
         // TESTS
         if ('type' in data && data['type'] == 'test') {
