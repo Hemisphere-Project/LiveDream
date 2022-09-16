@@ -1,0 +1,14 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+
+if ping -q -w 1 -c 1 8.8.8.8 > /dev/null; then
+  echo 'Internet available, trying to upgrade..'
+  git pull
+else
+  echo 'Skipping upgrade'
+fi
+
+exit
+
+cd "mental-dream"
+node server.js

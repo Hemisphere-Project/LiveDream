@@ -1,0 +1,19 @@
+:root{
+    /* HEADER */
+    --header-padding:   30px;
+    --header-font-size: 20px;
+  }
+  
+  /* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
+            HEADER
+  â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“ */
+  
+  header {
+    position: fixed;
+    top:0; left: 0;
+    padding: var(--header-padding);
+  }
+  
+  header p {
+    font-size: var(--header-font-size);
+  }

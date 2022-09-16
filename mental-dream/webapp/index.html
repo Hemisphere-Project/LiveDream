@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Mental One - Playground</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/assets/style.css">
+
+  <!-- LIBS -->
+  <script src="/assets//8fc24fb588.js" crossorigin="anonymous"></script>  <!-- FONT AWESOME -->
+  <script type="text/javascript" src="/assets/d3.v4.min.js" defer></script>
+  <script type="text/javascript" src="/assets/dat.gui.min.js" defer></script>
+  <script type="text/javascript" src="/assets/fili.js" defer></script>
+  <script type="text/javascript" src="/assets/math.js" defer></script>
+
+  <script defer>// STATS.JS monitor computer frameRate
+    javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='/assets/stats.min.js';document.head.appendChild(script);})()
+  </script>
+
+  <!-- MAIN SCRIPT -->
+  <script type="module" src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <p>Mental<br/><strong>Dream</strong></p>
+  </header>
+  <div class="ctrls">
+    Mental Bridge: <span class="status disconnected">disconnected</span><br /><br />
+
+    <table class="testerz">
+      <tr><th>DATA</th><th>Midi ch.1</th><th>OSC</th></tr>
+      <tr><td>Raw</td>    <td>Note 64</td><td>/raw</td>   <td><button class="btnCheck" onclick="fakeEvent(64, '/raw')">test</button></td></tr>
+      <tr><td>Alpha</td>  <td>Note 65</td><td>/alpha</td> <td><button class="btnCheck" onclick="fakeEvent(65, '/alpha')">test</button></td></tr>
+      <tr><td>Beta</td>   <td>Note 66</td><td>/beta</td>  <td><button class="btnCheck" onclick="fakeEvent(66, '/beta')">test</button></td></tr>
+      <tr><td>Gamma</td>  <td>Note 67</td><td>/gamma</td> <td><button class="btnCheck" onclick="fakeEvent(67, '/gamma')">test</button></td></tr>
+      <tr><td>Theta</td>  <td>Note 68</td><td>/theta</td> <td><button class="btnCheck" onclick="fakeEvent(68, '/theta')">test</button></td></tr>
+    </table>
+
+
+  <section>
+    
+    <!-- EXPERIENCE -->
+    <div id="experience"></div>
+
+    <!-- CONTROLS -->
+    <div id="controls" class="connect">
+        <div id="connect" class="btn" onclick="connect()"><span class="fa-brands fa-bluetooth-b icon"></span></div>
+        <div id="synthetic" class="btn" onclick="synthetic()"><span class="fa-solid fa-database icon"></span></div>
+    </div>
+  </section>
+</body>
+</html>

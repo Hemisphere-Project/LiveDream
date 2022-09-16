@@ -1,0 +1,177 @@
+:root{
+    /* CONTROLS */
+    --controls-height: 75px;
+    --controls-bottom: 30px;
+    --controls-gap:    10px;
+  
+    /*
+    --controls-height: 60px;
+    --controls-bottom: 30px;
+    --controls-gap:    10px;
+    */
+   
+    --controls-background-color: rgba(255,255,255);
+    --controls-alternate-color:  rgba(0,0,0);
+    --controls-padding: 10px;
+    
+    /* CONTROLS:BTN */
+    --controls-btn-radius:      10px;
+    --controls-btn-size:        25px;
+    
+    --controls-btn-color:             #333;
+    --controls-btn-background:        #BBB;
+    --controls-btn-background-active: #000;
+    --controls-btn-background-hover:  #333;
+  
+  }
+
+  .ctrls {
+    position: fixed;
+    left: 30px;
+    top: 10vh;
+    width: 100vw;
+  }
+
+  .status.disconnected {
+    color: red;
+  }
+
+  .status.connected {
+    color: green;
+  }
+
+  .testerz th, .testerz td {
+    padding: 5px;
+    border: 1px solid black;
+  }
+  
+  /* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
+          CONTROLS
+  â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“ */
+  
+  #controls {
+    position: fixed;
+    display: grid;
+    grid-gap: var(--controls-gap);
+    height: var(--controls-height);
+    width: min-content;
+    left: 50%; bottom: var(--controls-bottom);
+    transform: translateX(-50%);
+  }
+  
+  #controls.connect{
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  #controls.stream{
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  
+  #controls .btn{
+    position: relative;
+    height: var(--controls-height);
+    width: var(--controls-height);
+    background-color: var(--controls-btn-background);
+    border-radius: var(--controls-btn-radius);
+    cursor: pointer;
+  }
+  #controls .btn:hover{
+    background-color: var(--controls-btn-background-hover);
+    color:var(--controls-btn-background);
+  }
+  #controls .btn:hover .icon{
+    color:var(--controls-btn-background);
+  }
+  #controls .btn:active{
+    background-color: var(--controls-btn-background-active);
+  }
+  
+  #controls .btn .icon {
+    position: absolute;
+    top:50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color:var(--controls-btn-color);
+    font-size:var(--controls-btn-size);
+  }
+  
+  /* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
+        PLAY/PAUSE ICON
+  â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“ */
+  
+  .play.icon, .pause.icon {
+  
+    position: absolute;
+    top:50%; left: 50%;
+    transform: translate(-50%,-50%);
+  
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    width: 0;
+    height: var(--controls-btn-size);
+  
+    border-color: transparent transparent transparent var(--controls-btn-color);
+    transition: 100ms all ease;
+  }
+  
+  #controls .btn:hover .play.icon, #controls .btn:hover .pause.icon {
+    border-color: transparent transparent transparent var(--controls-btn-background);
+  }
+  
+  .play.icon {
+    border-style: solid;
+    border-width: 15px 0 15px 25px;
+  }
+  
+  .pause.icon {
+    border-style: double;
+    border-width: 0px 0 0px 20px;
+  }
+  
+  /* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
+         TIMESERIES
+  â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“ */
+  
+  #timeseries {
+    position: relative;
+  }
+  
+  #timeseries svg {
+    background-color: var(--controls-btn-background);
+    border-radius: var(--controls-btn-radius);
+  }
+  
+  #timeseries path.line {
+    fill: none;
+    stroke-width: 1px;
+    stroke: var(--controls-btn-color) !important;
+    pointer-events: none;
+  }
+  
+  #timeseries .uvrmsLabel{
+    position: absolute;
+    display: none;
+    left: 10px; bottom: 10px;
+    font-size: 10px;
+    color:var(--controls-btn-color) !important;
+  }
+  
+  #timeseries .battery{
+    position: absolute;
+    display: none;
+    left: 10px; top: 10px;
+    width:  5px; height: 5px;
+    border-radius: 50%;
+  }
+  
+  #timeseries .battery.full{
+    background-color: #4bf542;
+  }
+  
+  #timeseries .battery.medium{
+    background-color: #f59c42;
+  }
+  
+  #timeseries .battery.low{
+    background-color: #f21c11;
+  }

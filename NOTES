@@ -1,0 +1,11 @@
+Bastien DIDIER - MENTALISTA  06 59 82 96 23   bastien@mentalista.fr
+
+mentalista.zip => original local app to create receiving WS server
+mental-dream.zip => ddream server, create a WS server to receive connection from online APP, and also serve local version of the APP (probably outdated now)
+
+WebApp Mentalista : 
+  https://app.mentalista.com/ddreams/v/1.0/
+
+Chrome Auth:
+  chrome://flags/#enable-web-bluetooth                            => Enable
+  chrome://flags/#enable-web-bluetooth-new-permissions-backend    => Enable
