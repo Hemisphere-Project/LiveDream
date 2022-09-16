@@ -3,6 +3,22 @@ var megaMax = 100
 console.log('\n.:: DREAM Server ::.')
 console.log(' ')
 
+var fs = require('fs');
+
+function linearMap(x, in_range, out_range) {
+  var out = (x - in_range[0]) * (out_range[1] - out_range[0]) / (in_range[1] - in_range[0]) + out_range[0]
+  if (out > out_range[1]) return out_range[1]
+  if (out < out_range[0]) return out_range[0]
+  return out
+}
+
+let notes = {
+  "raw": 64,
+  "alpha": 65,
+  "beta": 66,
+  "gamma": 67,
+  "theta": 68
+}
 
 /* ----------------------------------------------------------------------------------------------------
  * Virtual MIDI Device
@@ -112,12 +128,17 @@ wss.on("connection", ws => {
     //Inform the user that a new client is connected
     console.log("- New webapp connected");
 
+    // Loading MIDI ranges
+    let ranges = JSON.parse(fs.readFileSync('../midi-ranges.json'));
+    console.log("MIDI RANGES");
+    console.log(ranges);
+
     // Receiving message
     ws.on("message", buffer => {
 
         //Parses receive data as json
         const data = JSON.parse(buffer)
-        console.log(data)
+        // console.log(data)
 
         // TESTS
         if ('type' in data && data['type'] == 'test') {
@@ -128,11 +149,12 @@ wss.on("connection", ws => {
 
         // Filtered values
         const filtered = data.filtered
+        const bands = data.bands
       
         //Log the data in the console
         var max = Math.max( Math.abs(Math.min.apply(null, filtered)), Math.max.apply(null, filtered)  )
-        console.log('dataset: size=', filtered.length, "max=" , max);
-        console.log('bands: ', data.bands);
+        console.log('raw: max=', max);
+        console.log('bands: ', bands);
         megaMax = Math.max(max, megaMax)
 
         // MIDI/OSC OUT
@@ -142,8 +164,19 @@ wss.on("connection", ws => {
           delayedRawOSC(i, '/raw', filtered[i])
         }
 
+        for (var b in bands) 
+        {
+          if (b in notes) {
+            let value = Math.round(linearMap(bands[b], ranges[b][0], ranges[b][1]))
+            let note = notes[b]
+            delayedRawMidi(i, note, value)
+            console.log('MIDI: ', b, '\t', note, value)
+          }
 
+          delayedRawOSC(i, '/'+b, bands[b])
+        }
 
+        console.log("====================")
     });
 
     // Handling what to do when clients disconnects from server
