@@ -33,11 +33,12 @@ console.log('Virtual MIDI port "DreamMidi" created')
 console.log('\traw data will be sent as velocity on channel=1 / note=64')
 console.log('\tvalue is normalized between 0-127 using dynamic max value')
 
-function delayedRawMidi(i, channel, value) 
+function delayedRawMidi(i, channel, value, cconly) 
 {
   setTimeout(function() {
     
     // Note 
+    if (!cconly)
     midi.send('noteon', {
       note: value,
       velocity: 100,
@@ -155,7 +156,7 @@ wss.on("connection", ws => {
         if ('type' in data && data['type'] == 'test') 
         {
           if (data['band'] in channels)
-            delayedRawMidi(0, channels[data['band']], data['value'])
+            delayedRawMidi(0, channels[data['band']], data['value'], true)
           delayedRawOSC(0, '/'+data['band'], data['value'])
           return
         } 
