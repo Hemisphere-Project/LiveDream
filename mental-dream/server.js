@@ -42,14 +42,14 @@ function delayedRawMidi(i, channel, value, cconly)
     midi.send('noteon', {
       note: value,
       velocity: 100,
-      channel: channel
+      channel: channel-1
     });
 
     // CC 64
     midi.send('cc', {
       controller: 64,
       value: value,
-      channel: channel
+      channel: channel-1
     });
 
     // console.log(value)
