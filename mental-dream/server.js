@@ -20,14 +20,7 @@ let channels = {
   "theta": 5
 }
 
-const broadcastAddress = require('broadcast-address');
-let broadcast = '127.0.0.1'
-try {
-  broadcast = broadcastAddress('en0');
-}
-catch(err) {
-}
-console.log('Broadcast OSC: ', broadcast)
+let oscDest = '127.0.0.1'
 
 /* ----------------------------------------------------------------------------------------------------
  * Virtual MIDI Device
@@ -93,15 +86,20 @@ console.log('\traw data will be sent to local machine as /raw [float] on port 37
 
 function delayedRawOSC(i, path, value) {
   setTimeout(function() {
-    oscPort.send({
-      address: path,
-      args: [
-          {
-              type: "f",
-              value: value
-          }
-      ]
-    }, broadcast, 3737);
+    try {
+      oscPort.send({
+        address: path,
+        args: [
+            {
+                type: "f",
+                value: value
+            }
+        ]
+      }, oscDest, 3737);
+    }
+    catch(error) {
+      console.warn('OSC send Error', error)
+    }
   }, 1000/256 * i);
 }
 
@@ -148,6 +146,7 @@ wss.on("connection", ws => {
     
     //Inform the user that a new client is connected
     console.log("- New webapp connected");
+    ws.send(JSON.stringify({'oscIP': oscDest}))
 
     // Loading MIDI ranges
     let ranges = JSON.parse(fs.readFileSync('../midi-ranges.json'));
@@ -167,6 +166,14 @@ wss.on("connection", ws => {
           if (data['band'] in channels)
             delayedRawMidi(0, channels[data['band']], data['value'], true)
           delayedRawOSC(0, '/'+data['band'], data['value'])
+          return
+        } 
+
+        // OSC IP
+        if ('type' in data && data['type'] == 'oscIP') 
+        {
+          oscDest = data['value']
+          console.log('OSC DEST:', oscDest)
           return
         } 
 

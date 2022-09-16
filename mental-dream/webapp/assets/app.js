@@ -66,7 +66,14 @@ function wsConnect() {
 	
 	//Triggered on a new message send by the server
 	ws.addEventListener('message', function (event) {
-		console.warn(event.data);
+		console.log(event.data);
+
+		let data = JSON.parse(event.data)
+		
+		if('oscIP' in data) {
+			document.getElementById('oscIP').value = data['oscIP']
+		}
+	
 	});
 
 	return ws
@@ -91,6 +98,20 @@ function fakeEvent(band)
 	}
 }
 window.fakeEvent = fakeEvent;
+
+
+function setOSC() {
+	let ip = document.getElementById('oscIP').value
+	if(ws.readyState == 1)
+	{
+		let data = {
+			'type': 'oscIP',
+			'value': ip
+		}
+		ws.send(JSON.stringify( data ));
+	}
+}
+window.setOSC = setOSC;
 
 
 
