@@ -275,7 +275,7 @@ app.get('/', (req, res) => {
 
 app.use(express.static('www/'+version))
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Webapp ready on http://localhost:${port}/`)
 })
 
@@ -490,7 +490,7 @@ var interfaces = []
 const WebSocketServer = require('ws');
 
 // Creating a new websocket server on port 8080
-const wss = new WebSocketServer.Server({ port: 8080 })
+const wss = new WebSocketServer.Server({ port: 8080, host: '0.0.0.0' })
  
 // Creating connection using websocket
 wss.on("connection", ws => {  
@@ -517,6 +517,11 @@ wss.on("connection", ws => {
           ws.send(JSON.stringify({ 'type': 'subscribers', 'count': subscribers.length }))
           
           console.log('New interface connected')
+
+          // Infomr interfaces
+          for (var i=0; i<interfaces.length; i++)
+            interfaces[i].send(JSON.stringify({ 'type': 'interfaces', 'count': interfaces.length }))
+            
           return
         } 
 
@@ -568,10 +573,12 @@ wss.on("connection", ws => {
           
           var avgBands = localStorage.average()
           var avgMIDIBands = localStorage.averageNormalized()
+          var devData = localStorage.get()
           
           // Inform interfaces
-          for (var i=0; i<interfaces.length; i++)
-            interfaces[i].send( JSON.stringify({ 'type': 'averages', 'avg': avgBands, 'avgMIDI': avgMIDIBands}) )
+          for (var i=0; i<interfaces.length; i++) {
+            interfaces[i].send( JSON.stringify({ 'type': 'averages', 'avg': avgBands, 'avgMIDI': avgMIDIBands, 'devCount': Object.keys(devData).length}) )
+          }
 
           // Averages MIDI/OSC
           // if (Object.keys(avgMIDIBands).length) console.log("AVERAGES:")
@@ -585,7 +592,6 @@ wss.on("connection", ws => {
           }
 
           // Devices OSC
-          var devData = localStorage.get()
           for (var dev in devData) {
             for (var band in devData[dev]['bands']) {
               oscSend('/eeg/'+dev+'/'+band, devData[dev]['bands'][band])
@@ -611,6 +617,10 @@ wss.on("connection", ws => {
         // Infomr interfaces
         for (var i=0; i<interfaces.length; i++)
           interfaces[i].send(JSON.stringify({ 'type': 'subscribers', 'count': subscribers.length }))
+
+        // Infomr interfaces
+        for (var i=0; i<interfaces.length; i++)
+          interfaces[i].send(JSON.stringify({ 'type': 'interfaces', 'count': interfaces.length }))
     });
     
     // Handling client connection error

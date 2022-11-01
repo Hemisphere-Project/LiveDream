@@ -35,11 +35,18 @@
 
 		<u>Inputs:</u><br /><br/>
 		
-		RemoteAPP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
+		Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
 			<br/>
+
+		APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br />
+			<br/>
+		Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br />
+			<br />
+
 		Bluetooth data source :: <button id="add-device" onclick="connect()">+ Add device</button>
 		<section id="device-hyper-widget-holder"></section>
 		<br /><br />
+
 
 		<u>Outputs:</u><br /><br />
 		Local server :: <span id="localStatus" class="cliStatus disconnected">disconnected</span><br/><br/>
@@ -47,6 +54,7 @@
 		<input type="checkbox" id="enableOSC" onchange="toggleOSC()"> OSC &nbsp;out = <i>localhost:3737</i> <br />
 		<input type="checkbox" id="enableMIDI" onchange="toggleMIDI()"> MIDI out = <i>DreamMidi</i>
 		<br /><br /><br />
+
 
 		<u>Data Averages:</u><br /><br />
 		<table class="testerz">

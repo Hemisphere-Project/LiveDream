@@ -1,6 +1,6 @@
 {
   "remoteIP": "",
-  "dataFPS": "10",
+  "dataFPS": "20",
   "enableOSC": true,
   "enableMIDI": true,
   "midiRanges": {

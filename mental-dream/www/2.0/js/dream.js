@@ -9,7 +9,7 @@ let ws = null
 ////Create websocket connection
 function wsConnect( wsRoutine, uiRoutine ) {
 
-	ws = new WebSocket("ws://localhost:8080");
+	ws = new WebSocket("ws://"+window.location.host.split(':')[0]+":8080");
 
 	//Triggered on websocket open connection
 	ws.addEventListener("open", () =>{
@@ -90,9 +90,18 @@ function wsConnect( wsRoutine, uiRoutine ) {
 			count.innerHTML = data['count']
 		}
 
+		// IFACE count
+		if ('type' in data && data['type'] == 'interfaces') 
+		{
+			var count = document.getElementById('ifaceCount')
+			count.innerHTML = data['count']
+		}
+
 		// Averages
 		if ('type' in data && data['type'] == 'averages')
 		{
+			document.getElementById('devCount').innerHTML = data['devCount']
+
 			for(var band in data['avg'])
 			{
 				document.getElementById('avg'+band).innerHTML = Math.round( data['avg'][band]*100 )/100
