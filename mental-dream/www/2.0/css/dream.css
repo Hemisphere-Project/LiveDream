@@ -1,0 +1,49 @@
+body {
+  padding: 20px;
+}
+
+.cliStatus.disconnected {
+  color: red;
+}
+
+.cliStatus.connected {
+  color: green;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.on {
+  background-color: green;
+}
+
+.testerz {
+  margin-left: 20px;
+}
+
+.testerz th{
+  min-width: 180px;
+}
+
+.testerz td{
+  min-width: 60px;
+}
+
+.testerz th, .testerz td {
+  padding: 5px;
+  border: 1px solid black;
+}
+
+.ctrls #add-device {
+  margin: 0px;
+  padding: 2px;
+  background-color: #DDD;
+  border-radius: 0px;
+  border: 1px solid black;
+  cursor: pointer;
+}

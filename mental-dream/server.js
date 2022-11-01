@@ -4,112 +4,262 @@ console.log('\n.:: DREAM Server ::.')
 console.log(' ')
 
 var fs = require('fs');
+var request = require('request');
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
 
 function linearMap(x, in_range, out_range) {
   var out = (x - in_range[0]) * (out_range[1] - out_range[0]) / (in_range[1] - in_range[0]) + out_range[0]
   if (out > out_range[1]) return out_range[1]
   if (out < out_range[0]) return out_range[0]
-  return out
+  return Math.round(out)
 }
 
 let channels = {
   "raw": 1,
-  "alpha": 2,
-  "beta": 3,
-  "gamma": 4,
-  "theta": 5
+  "delta": 2,
+  "theta": 3,
+  "alpha": 4,
+  "beta": 5,
+  "gamma": 6,
 }
 
 let oscDest = '127.0.0.1'
 
 /* ----------------------------------------------------------------------------------------------------
+ * CONF
+ * ----------------------------------------------------------------------------------------------------
+ */
+
+class Conf extends EventEmitter {
+  constructor(path, defaults) {
+    super();
+    this.config = {};
+    this.path = path;
+    this.defaults = defaults;
+  }
+
+  load() {
+    return new Promise((resolve, reject) => {
+      fs.readFile(this.path, (err, data) => 
+      {
+        var loadedConf = null
+        
+
+        if (err) {
+          console.log('No configuration file found, creating default one');
+          loadedConf = {}
+        } else {
+          try {
+            loadedConf = JSON.parse(data)
+          } catch (e) {
+            console.log('Error parsing configuration file..');
+          }
+        }
+
+        if (loadedConf != null)
+        {
+          var doSave = false
+
+          // merge loadedConf with defaults
+          loadedConf = Object.assign({}, this.defaults, loadedConf)
+
+          for (var key in loadedConf)
+            if (!this.config.hasOwnProperty(key) || JSON.stringify(this.config[key]) != JSON.stringify(loadedConf[key])) 
+            {
+              if (!this.config.hasOwnProperty(key)) doSave = true
+
+              this.config[key] = loadedConf[key];
+              this.emit('set-'+key, this.config[key]);
+              console.log('set-'+key, '=' , this.config[key]);
+            }
+          
+          this.emit('loaded');
+          if (doSave) this.save()
+          resolve();
+        }
+        else reject();
+
+      });
+    });
+  }
+
+  save() {
+    var self = this;
+    fs.writeFile(this.path, JSON.stringify(this.config, null, 2), function (err) {
+      if (err) return console.log(err);
+      self.emit('saved');
+    });
+  }
+
+  get(key) {
+    return this.config[key];
+  }
+
+  set(key, value) {
+    this.config[key] = value;
+    this.save();
+    this.emit('set-'+key, value)
+  }
+}
+
+// DEFAULT CONF
+//
+
+var conf = new Conf('../config.json', {
+  'remoteIP': '',
+  'dataFPS': 10,
+  'enableOSC': false,
+  'enableMIDI': false,
+  'midiRanges': {
+    "raw":   [ 
+      [0, 300],   
+      [0, 127]
+    ],
+    "delta":  [ 
+      [0, 30],
+      [0, 127]
+    ],
+    "theta": [ 
+      [0, 30],
+      [0, 127]
+    ],
+    "alpha": [ 
+      [0, 30],
+      [0, 127]
+    ],
+    "beta":  [ 
+      [0, 30],
+      [0, 127]
+    ],
+    "gamma": [ 
+      [20, 50],
+      [0, 127]
+    ]
+  }
+})
+
+/* ----------------------------------------------------------------------------------------------------
  * Virtual MIDI Device
- * Created: 16/06/22 by Thomas BOHL
  * ----------------------------------------------------------------------------------------------------
  */
 
 var easymidi = require('easymidi');
-var midi = new easymidi.Output('DreamMidi', true);
+var midi = null
 
-console.log('Virtual MIDI port "DreamMidi" created')
-console.log('\traw data will be sent as velocity on channel=1 / note=64')
-console.log('\tvalue is normalized between 0-127 using dynamic max value')
+function midiSend(channel, value, cconly) 
+{
+  if (midi == null) return
+
+  // Note
+  if (!cconly) 
+  midi.send('noteon', {
+    note: value,
+    velocity: 100,
+    channel: channel-1
+  });
+
+  // CC 64
+  midi.send('cc', {
+    controller: 64,
+    value: value,
+    channel: channel-1
+  });
+}
 
 function delayedRawMidi(i, channel, value, cconly) 
 {
   setTimeout(function() {
-    
-    // Note 
-    if (!cconly)
-    midi.send('noteon', {
-      note: value,
-      velocity: 100,
-      channel: channel-1
-    });
-
-    // CC 64
-    midi.send('cc', {
-      controller: 64,
-      value: value,
-      channel: channel-1
-    });
-
+    midiSend(channel, value, cconly)
     // console.log(value)
   }, 1000/256 * i);
 }
 
-console.log(' ')
+// Enable MIDI
+conf.on('set-enableMIDI', (enable)=>{
+
+  if (midi) midi.close()
+  midi = null
+
+  if (enable) {
+    midi = new easymidi.Output('DreamMidi', true);
+
+    console.log('\nVirtual MIDI port "DreamMidi" created')
+    console.log('\tvalues are normalized between 0-127 using linear ranges from config.js\n') 
+  }
+  else console.log('MIDI disabled')
+
+})
+
 
 /* ----------------------------------------------------------------------------------------------------
  * OSC
- * Created: 16/06/22 by Thomas BOHL
  * ----------------------------------------------------------------------------------------------------
  */
 
 var osc = require('osc');
-var oscPort = new osc.UDPPort({
-  localAddress: "0.0.0.0",
-  localPort: 3738,
-  metadata: true
-});
+var oscPort = null
 
-oscPort.on("message", function (oscMsg, timeTag, info) {
-  console.log("An OSC message just arrived!", oscMsg);
-  console.log("Remote info is: ", info);
-});
+function oscSend(path, value) 
+{
+  if (oscPort == null) return
 
-// Open the socket.
-oscPort.open();
-
-console.log('OSC sender ready')
-console.log('\traw data will be sent to local machine as /raw [float] on port 3737')
+  try {
+    oscPort.send({
+      address: path,
+      args: [
+          {
+              type: "f",
+              value: value
+          }
+      ]
+    }, oscDest, 3737);
+  }
+  catch(error) {
+    console.warn('OSC send Error', error)
+  }
+}
 
 function delayedRawOSC(i, path, value) {
   setTimeout(function() {
-    try {
-      oscPort.send({
-        address: path,
-        args: [
-            {
-                type: "f",
-                value: value
-            }
-        ]
-      }, oscDest, 3737);
-    }
-    catch(error) {
-      console.warn('OSC send Error', error)
-    }
+    oscSend(path, value)
   }, 1000/256 * i);
 }
 
 console.log(' ')
 
+// Enable MIDI
+conf.on('set-enableOSC', (enable)=>{
+
+  if (oscPort) oscPort.close()
+  oscPort = null
+
+  if (enable) {
+    oscPort = new osc.UDPPort({
+      localAddress: "0.0.0.0",
+      localPort: 3738,
+      metadata: true
+    });
+
+    oscPort.on("message", function (oscMsg, timeTag, info) {
+      console.log("An OSC message just arrived!", oscMsg);
+      console.log("Remote info is: ", info);
+    });
+    
+    // Open the socket.
+    oscPort.open();
+    
+    console.log('\nOSC sender ready')
+    console.log('\tdata will be sent to local machine as /eeg/device/band [float] on port 3737\n')
+  }
+  else console.log('OSC disabled')
+
+})
+
 
 /* ----------------------------------------------------------------------------------------------------
  * Express server => Serve WebApp locally
- * Created: 16/06/22 by Thomas BOHL
- * TODO => Check online if webapp has upgrades and replace locally
  * ----------------------------------------------------------------------------------------------------
  */
 
@@ -117,24 +267,225 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+var version = "2.0"
+
 app.get('/', (req, res) => {
-  res.sendFile(__dirname+'/webapp/index.html');
+  res.sendFile(__dirname+'/www/'+version+'/index.html');
 })
 
-app.use(express.static('webapp'))
+app.use(express.static('www/'+version))
 
 app.listen(port, () => {
   console.log(`Webapp ready on http://localhost:${port}/`)
 })
 
+// handle 404 -> try to retrieve and store the file locally
+app.use(function(req, res) {
+  console.log('404: Page not Found', req.url);
+
+  // retrieving remote ressource
+  var rUrl = "https://app.mentalista.com/ddreams/v/"+version+req.url
+  console.log('Retrieving remote ressource', rUrl)
+
+  // get raw content at rUrl
+  request(rUrl, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      console.log('Remote ressource retrieved')
+      res.send(body)
+
+      // mkdir recursively
+      var path = req.url.split('/')
+      path.pop()
+      path = path.join('/')
+      console.log('Creating local folder', path)
+      fs.mkdirSync(__dirname+'/www/'+version+path, { recursive: true }) 
+
+      // save file
+      var path = __dirname+'/www/'+version+req.url
+      console.log('Saving file', path)
+      fs.writeFile(path, body, function(err) {
+        if(err) {
+          return console.log(err);
+        }
+        console.log("File saved");
+      })
+    }
+    else {
+      console.log('Remote ressource not found', rUrl)
+      res.status(404)
+      res.send('404: Page not Found')
+    }
+  })
+
+});
+
+
 
 /* ----------------------------------------------------------------------------------------------------
- * Websocket server, 2022
- * Created: 06/03/22 by Gille de Bast
- *
- * Updated: 08/03/22 Current V.1
+ * Local storage
  * ----------------------------------------------------------------------------------------------------
  */
+
+class LocalStorage {
+  constructor() {
+    this.lastdata = {}
+  }
+
+  clear() {
+    this.lastdata = {}
+  }
+
+  push(newset) {
+    for (var dev in newset) 
+    {
+      if (!this.lastdata.hasOwnProperty(dev)) this.lastdata[dev] = {}
+      this.lastdata[dev] = newset[dev]
+    }
+  }
+
+  get() {
+    return this.lastdata
+  }
+
+  average() {
+    // average init
+    var avgBands = {}
+    var cntBands = {}
+
+    // each Device
+    for(var dev in this.lastdata)
+    {
+      // each band
+      for(var band in this.lastdata[dev]['bands']) {
+        if (!avgBands.hasOwnProperty(band)) {
+          avgBands[band] = 0
+          cntBands[band] = 0
+        }
+        avgBands[band] += this.lastdata[dev]['bands'][band]
+        cntBands[band] += 1
+      }          
+    }
+
+    // calc average
+    for(var band in avgBands)
+      avgBands[band] /= cntBands[band]
+
+    return avgBands
+  }
+
+  averageNormalized() 
+  {
+    var avgBands = this.average()
+
+    // normalize
+    for (var band in avgBands) {
+      var range = conf.get('midiRanges')[band]
+      avgBands[band] = linearMap(avgBands[band], range[0], range[1])
+    }
+
+    return avgBands
+  }
+}
+
+var localStorage = new LocalStorage()
+
+
+/* ----------------------------------------------------------------------------------------------------
+ * Websocket client (REMOTE SUBSCRIBE), connect when remoteIP is set
+ * ----------------------------------------------------------------------------------------------------
+ */
+
+const WebSocket = require('ws');
+
+var firstCli = null
+
+class wsClient extends EventEmitter { 
+
+  constructor(_name) {
+    super();
+    this.name = _name
+    this.cli = null
+    this.reco = null
+  }
+
+  connect(_ip) {
+
+    if (_ip !== undefined) this.ip = _ip
+
+    if (this.cli && this.cli.readyState == 1){
+      this.cli.close()
+      return
+    }
+
+    if (!this.ip) return
+
+    console.log('Subscribing to', this.name)
+    this.cli = new WebSocket('ws://'+this.ip+':8080');
+    
+    // Connection opened
+    this.cli.on('open', () => {
+      // console.log('Subscribing to ', this.ip)
+      this.cli.send('{"type":"subscribe"}');
+      
+      // Inform interfaces
+      for (var i=0; i<interfaces.length; i++)
+        interfaces[i].send( JSON.stringify({ 'type': 'subscribed', 'name': this.name, 'ip':this.ip, 'state': this.state() }) )
+
+    });
+
+    // Listen for messages
+    this.cli.on('message', (bufffer) => 
+    {
+      var data = JSON.parse(bufffer)
+      
+      // EEG received !
+      if ('type' in data && data['type'] == 'eeg') 
+      {
+        // console.log('REMOTE DATA', data['data'])
+        localStorage.push(data['data'])
+      }
+    });
+
+    // Connection closed
+    this.cli.on('close', () => {
+      console.log('Disconnected from', this.name)
+
+      // Inform interfaces
+      for (var i=0; i<interfaces.length; i++)
+        interfaces[i].send(JSON.stringify({ 'type': 'subscribed', 'name': this.name, 'ip':this.ip, 'state': this.state() }))
+
+      // Reconnect
+      clearTimeout(this.reco)
+      this.reco = setTimeout(()=>{ this.connect() }, 1000)
+    })
+    
+    // Connection error
+    this.cli.on('error', (e) => {
+      console.log('Error with remote', e)
+    })
+  }
+
+  state() {
+    return this.cli?(this.cli.readyState == 1):false
+  }
+}
+
+var wsClientRemote = new wsClient('remote')
+
+// Connect Remote
+conf.on('set-remoteIP', (remoteIP)=>{
+  wsClientRemote.connect(remoteIP)
+})
+
+
+
+/* ----------------------------------------------------------------------------------------------------
+ * Websocket server
+ * ----------------------------------------------------------------------------------------------------
+ */
+
+var subscribers = []
+var interfaces = []
 
 const WebSocketServer = require('ws');
 
@@ -142,16 +493,7 @@ const WebSocketServer = require('ws');
 const wss = new WebSocketServer.Server({ port: 8080 })
  
 // Creating connection using websocket
-wss.on("connection", ws => {
-    
-    //Inform the user that a new client is connected
-    console.log("- New webapp connected");
-    ws.send(JSON.stringify({'oscIP': oscDest}))
-
-    // Loading MIDI ranges
-    let ranges = JSON.parse(fs.readFileSync('../midi-ranges.json'));
-    console.log("MIDI RANGES");
-    console.log(ranges);
+wss.on("connection", ws => {  
 
     // Receiving message
     ws.on("message", buffer => {
@@ -159,6 +501,37 @@ wss.on("connection", ws => {
         //Parses receive data as json
         const data = JSON.parse(buffer)
         // console.log(data) 
+
+        // WEB INTERFACE
+        if ('type' in data && data['type'] == 'interface') 
+        {
+          interfaces.push(ws)
+
+          // Reload config and send
+          conf.load().then( () => {
+            ws.send(JSON.stringify(Object.assign(conf.config, { 'type': 'conf' })))
+          })
+
+          // Send subscribed status
+          ws.send(JSON.stringify({ 'type': 'subscribed', 'name': wsClientRemote.name, 'ip':wsClientRemote.ip, 'state': wsClientRemote.state() }))
+          ws.send(JSON.stringify({ 'type': 'subscribers', 'count': subscribers.length }))
+          
+          console.log('New interface connected')
+          return
+        } 
+
+        // SUBSCRIBE from wsClient
+        if ('type' in data && data['type'] == 'subscribe') 
+        {
+          subscribers.push(ws)
+          console.log('New remote bridge subscribed, total=', subscribers.length)
+
+          // Infomr interfaces
+          for (var i=0; i<interfaces.length; i++)
+            interfaces[i].send(JSON.stringify({ 'type': 'subscribers', 'count': subscribers.length }))
+
+          return
+        } 
 
         // TESTS
         if ('type' in data && data['type'] == 'test') 
@@ -169,48 +542,75 @@ wss.on("connection", ws => {
           return
         } 
 
-        // OSC IP
-        if ('type' in data && data['type'] == 'oscIP') 
+        // SET CONF
+        if ('type' in data && data['type'] == 'set') 
         {
-          oscDest = data['value']
-          console.log('OSC DEST:', oscDest)
+          conf.set(data['key'], data['value'])
+          ws.send(JSON.stringify(Object.assign(conf.config, { 'type': 'conf' })))
           return
         } 
 
-        // Filtered values
-        const filtered = data.filtered
-        const bands = data.bands
-      
-        //Log the data in the console
-        var max = Math.max( Math.abs(Math.min.apply(null, filtered)), Math.max.apply(null, filtered)  )
-        console.log('raw: max=', max);
-        console.log('bands: ', bands);
-        megaMax = Math.max(max, megaMax)
+        // EEG
+        if ('type' in data && data['type'] == 'eeg')
+        {        
+          // Store data
+          // console.log('LOCAL DATA', data['data'])
+          localStorage.push(data['data'])
 
-        // MIDI/OSC OUT
-        for (var i in filtered) {
-          let value = Math.floor((Math.abs(filtered[i])/megaMax)*127)
-          delayedRawMidi(i, channels['raw'], value)
-          delayedRawOSC(i, '/raw', filtered[i])
+          // Forward to remote cli
+          for (var i=0; i<subscribers.length; i++)
+            subscribers[i].send(buffer)      
         }
 
-        for (var b in bands) 
+        // PUSH data (triggered only from interface[0])
+        if ('type' in data && data['type'] == 'push' && ws == interfaces[0])
         {
-          if (b in channels) {
-            let value = Math.round(linearMap(bands[b], ranges[b][0], ranges[b][1]))
-            delayedRawMidi(i, channels[b], value)
-            console.log('MIDI ch. '+channels[b]+': ', b, '\t', value)
+          
+          var avgBands = localStorage.average()
+          var avgMIDIBands = localStorage.averageNormalized()
+          
+          // Inform interfaces
+          for (var i=0; i<interfaces.length; i++)
+            interfaces[i].send( JSON.stringify({ 'type': 'averages', 'avg': avgBands, 'avgMIDI': avgMIDIBands}) )
+
+          // Averages MIDI/OSC
+          // if (Object.keys(avgMIDIBands).length) console.log("AVERAGES:")
+
+          for (var band in avgMIDIBands) 
+          {
+            midiSend(channels[band], avgMIDIBands[band])
+            oscSend('/eeg/avg/'+band, avgBands[band])
+
+            // console.log("   ", band.padEnd(5, ' '), " \tMIDI ch:", channels[band], " = ", avgMIDIBands[band], " \tOSC:", '/eeg/avg/'+band.padEnd(5, ' '), " = ", avgBands[band])
           }
 
-          delayedRawOSC(i, '/'+b, bands[b])
+          // Devices OSC
+          var devData = localStorage.get()
+          for (var dev in devData) {
+            for (var band in devData[dev]['bands']) {
+              oscSend('/eeg/'+dev+'/'+band, devData[dev]['bands'][band])
+            }
+          }
+
+          // Clear local storage
+          localStorage.clear()
+
+          // if (Object.keys(avgMIDIBands).length) console.log("====================")
         }
 
-        console.log("====================")
+
     });
 
     // Handling what to do when clients disconnects from server
-    ws.on("close", () => {
-        console.log("👋 The client has disconnected");
+    ws.on("close", (e) => {
+        // remove client from list
+        subscribers = subscribers.filter(e => e !== ws)
+        interfaces = interfaces.filter(e => e !== ws)
+        console.log("A client is gone", subscribers.length, interfaces.length);
+
+        // Infomr interfaces
+        for (var i=0; i<interfaces.length; i++)
+          interfaces[i].send(JSON.stringify({ 'type': 'subscribers', 'count': subscribers.length }))
     });
     
     // Handling client connection error
@@ -226,5 +626,6 @@ console.log("WebSocket server running on port 8080");
 ////////
 ////////
 
-// const open = require('open');
-// open(`http://localhost:${port}`)
+conf.load()
+
+

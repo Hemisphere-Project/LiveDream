@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>DDreams > Hyper widget</title>
+	<link rel="stylesheet" href="css/style.css">
+	<link rel="stylesheet" href="css/dream.css">
+
+	<!-- LIBS -->
+	<script type="text/javascript" src="js/libs/d3.v4.min.js" defer></script>
+	<script type="text/javascript" src="js/libs/fili.js" defer></script>
+	<script type="text/javascript" src="js/libs/math.js" defer></script>
+	
+	<script src="https://kit.fontawesome.com/8fc24fb588.js" crossorigin="anonymous"></script>
+	
+	<!-- MAIN SCRIPT -->
+	<script src="js/dream.js"></script>
+	<script type="module" src="js/app.js" defer></script>
+
+	<script defer>// STATS.JS monitor computer frameRate
+	  javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='js/libs/stats.min.js';document.head.appendChild(script);})()
+	</script>
+</head>
+<body>
+
+	<header> <p>Mental::<strong>Dream</strong> &nbsp;&nbsp;&nbsp;&nbsp;
+			<small>FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> </p></header>
+	
+
+	<div class="ctrls">
+
+		 <br /><br/>
+
+		<u>Inputs:</u><br /><br/>
+		
+		RemoteAPP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
+			<br/>
+		Bluetooth data source :: <button id="add-device" onclick="connect()">+ Add device</button>
+		<section id="device-hyper-widget-holder"></section>
+		<br /><br />
+
+		<u>Outputs:</u><br /><br />
+		Local server :: <span id="localStatus" class="cliStatus disconnected">disconnected</span><br/><br/>
+		<input type="checkbox" id="enableWS" checked disabled> WS &nbsp;&nbsp;cli = <span id="cliCount">0</span><br/>
+		<input type="checkbox" id="enableOSC" onchange="toggleOSC()"> OSC &nbsp;out = <i>localhost:3737</i> <br />
+		<input type="checkbox" id="enableMIDI" onchange="toggleMIDI()"> MIDI out = <i>DreamMidi</i>
+		<br /><br /><br />
+
+		<u>Data Averages:</u><br /><br />
+		<table class="testerz">
+			<tr><td></td><th>BANDS</th><th colspan="2">MIDI (note + cc64)</th><th colspan="2">OSC</th></tr>
+			<!-- <tr><td><button class="btnCheck" onclick="fakeEvent('raw')">test</button></td> 
+				<td>Raw</td>      					 		<td style="text-align: center;">ch.1</td><td id="avgMIDIraw" style="text-align: center;"></td>  	
+				<td>/eeg/avg/raw</td> <td id="avgraw"></td>    </tr>
+				 -->
+			<tr><td><button class="btnCheck" onclick="fakeEvent('delta')">test</button></td> 
+				<td>Delta (01-04Hz)</td>  			<td style="text-align: center;">ch.2</td><td id="avgMIDIdelta" style="text-align: center;"></td>  
+				<td>/eeg/avg/delta</td> <td id="avgdelta"></td> </tr>
+				
+			<tr><td><button class="btnCheck" onclick="fakeEvent('theta')">test</button></td> 
+				<td>Theta (04-08Hz)</td>  			<td style="text-align: center;">ch.3</td><td id="avgMIDItheta" style="text-align: center;"></td>  
+				<td>/eeg/avg/theta</td> <td id="avgtheta"></td> </tr>
+				
+			<tr><td><button class="btnCheck" onclick="fakeEvent('alpha')">test</button></td> 
+				<td>Alpha (09-12Hz)</td>  			<td style="text-align: center;">ch.4</td><td id="avgMIDIalpha" style="text-align: center;"></td>  
+				<td>/eeg/avg/alpha</td> <td id="avgalpha"></td> </tr>
+				
+			<tr><td><button class="btnCheck" onclick="fakeEvent('beta')">test</button></td> 
+				 <td>Beta &nbsp;(12-30Hz)</td>  <td style="text-align: center;">ch.5</td><td id="avgMIDIbeta" style="text-align: center;"></td>  	
+				<td>/eeg/avg/beta</td> <td id="avgbeta"></td>   </tr>
+				
+			<tr><td><button class="btnCheck" onclick="fakeEvent('gamma')">test</button></td> 
+				<td>Gamma (30-45Hz)</td>  			<td style="text-align: center;">ch.6</td><td id="avgMIDIgamma" style="text-align: center;"></td>  
+				<td>/eeg/avg/gamma</td> <td id="avggamma"></td> </tr>
+				
+		</table>
+		<br /><br /><br />
+
+
+		
+		
+	</div>
+
+</body>
+
+</html>

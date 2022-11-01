@@ -1,0 +1,75 @@
+:root{
+
+	--hyper-widget-size:       200px;
+	--hyper-widget-padding:     20px;
+	--hyper-widget-background:  #EEE;
+	--hyper-widget-font-size:   10px;
+}
+
+.hyper-widget {
+
+	position: relative;
+
+	width:  var(--hyper-widget-size);
+	height: var(--hyper-widget-size);
+	box-sizing: border-box;
+
+	background-color: var(--hyper-widget-background);
+
+	padding:       var(--hyper-widget-padding);
+	border-radius: var(--hyper-widget-padding);
+}
+
+/* ––––––– HEAD ––––––– */
+
+.hyper-widget .head .name {
+	font-size: var(--hyper-widget-font-size);
+}
+
+.hyper-widget .head .status {
+	width:10px;
+	height: 10px;
+	border-radius: 50%;
+	background-color: red;
+	float: right;
+
+}
+
+/* ––––––– DATA ––––––– */
+
+.hyper-widget .data {
+	position: absolute;
+	top: 0;
+	left:0;
+}
+
+.hyper-widget .data svg{
+	border-radius: var(--hyper-widget-padding);
+}
+
+/* ––––––– FOOTER ––––––– */
+
+.hyper-widget .footer {
+	position: absolute;
+	bottom: var(--hyper-widget-padding);
+
+	width: calc( 100% - calc( 2 * var(--hyper-widget-padding) ));
+}
+
+.hyper-widget .footer .uv {
+	float: left;
+	font-size: var(--hyper-widget-font-size);
+
+	background-color: #DDD;
+	padding: 4px 8px;
+	border-radius: 5px;
+}
+
+.hyper-widget .footer .freq {
+	float: right;
+	font-size: var(--hyper-widget-font-size);
+
+	background-color: #DDD;
+	padding: 4px 8px;
+	border-radius: 5px;
+}
