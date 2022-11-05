@@ -153,12 +153,14 @@ function midiSend(channel, value, cconly)
   if (midi == null) return
 
   // Note
-  if (!cconly) 
-  midi.send('noteon', {
-    note: value,
-    velocity: 100,
-    channel: channel-1
-  });
+  if (!cconly) {
+    midi.send('noteon', {
+      note: value,
+      velocity: 100,
+      channel: channel-1
+    });
+    console.log('== MIDI NOTE ch.'+channel, value)
+  }
 
   // CC 64
   midi.send('cc', {
@@ -166,6 +168,7 @@ function midiSend(channel, value, cconly)
     value: value,
     channel: channel-1
   });
+  console.log('== MIDI CC64 ch.'+channel, value)
 }
 
 function delayedRawMidi(i, channel, value, cconly) 
@@ -215,6 +218,7 @@ function oscSend(path, value)
           }
       ]
     }, oscDest, 3737);
+    console.log('== OSC', path, value)
   }
   catch(error) {
     console.warn('OSC send Error', error)
