@@ -645,7 +645,21 @@ ws.on("connection", ws => {
 });
 
 //Inform the user that the server is active
-console.log("WebSocket server running on port 8080");
+console.log("WebSocket server running on port 3000");
+
+var isPi = require('detect-rpi');
+
+if (isPi()) {
+  const { spawn } = require('child_process');
+
+  var args = ['--url', `https://localhost:3000` ]
+  
+  console.log('kiosk', ...args)
+  var kioskprocess = spawn('kiosk', args)
+}
+else {
+  console.log('kiosk', 'not a pi')
+}
 
 ////////
 ////////
