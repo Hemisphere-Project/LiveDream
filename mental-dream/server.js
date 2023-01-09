@@ -433,7 +433,7 @@ class wsClient extends EventEmitter {
     if (!this.ip) return
 
     console.log('Subscribing to', this.name)
-    this.cli = new WebSocket('wss://'+this.ip+':3000');
+    this.cli = new WebSocket('wss://'+this.ip+':3000',  { rejectUnauthorized: false });
     
     // Connection opened
     this.cli.on('open', () => {
