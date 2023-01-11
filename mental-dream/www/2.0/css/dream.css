@@ -4,6 +4,7 @@
 
 body {
   padding: 20px;
+  font-size: 25px;
 }
 
 .cliStatus.disconnected {
@@ -11,7 +12,21 @@ body {
 }
 
 .bigBTN {
-  padding: 8px;
+  padding: 10px 15px 6px;
+  color: black;
+  float: right;
+  margin-left: 5px;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+.addBTN {
+  background-color: rgb(40, 247, 40);
+  border-color: rgb(40, 247, 40);
+  padding: 10px 15px 6px;
+  border-radius: 5px;
+  font-size: 20px;
+  color: black;
 }
 
 .full {

@@ -4,12 +4,13 @@
 
 :root{
 	--theme-font-family: 'IBM Plex Mono';
+	--hyper-widget-font-size: 15px;
+	--hyper-widget-padding: 10px;
 }
 
 *{
 	margin:0;padding:0;
 	font-family: var(--theme-font-family);
-	font-size: 1.2rem;;
 }
 
 #add-device {
@@ -32,13 +33,18 @@
 #device-hyper-widget-holder {
 	margin: 20px;
 	height: 100%;
-
+	font-size: 20px;
 	overflow: none;
 }
 #device-hyper-widget-holder .hyper-widget {
 	margin-bottom: 20px;
 	margin-right:  20px;
 	display: inline-block;
+}
+
+.hyper-widget .head .name {
+	padding: 4px 8px;
+	border-radius: 5px;
 }
 
 /* ––––––––––––––––––––––––––––– */
