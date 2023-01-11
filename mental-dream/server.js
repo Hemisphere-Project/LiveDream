@@ -456,6 +456,10 @@ class wsClient extends EventEmitter {
       {
         // console.log('REMOTE DATA', data['data'])
         localStorage.push(data['data'])
+
+        // Forward to remote cli
+        for (var i=0; i<subscribers.length; i++)
+          subscribers[i].send(bufffer)
       }
     });
 
