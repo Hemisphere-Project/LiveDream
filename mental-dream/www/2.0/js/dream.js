@@ -1,5 +1,6 @@
 
 
+
 /* ––––––––––––––––––––
 	   WS CLIENT
 –––––––––––––––––––– */
@@ -9,7 +10,7 @@ let ws = null
 ////Create websocket connection
 function wsConnect( wsRoutine, uiRoutine ) {
 
-	ws = new WebSocket("ws://"+window.location.host.split(':')[0]+":8080");
+	ws = new WebSocket("wss://"+window.location.host.split(':')[0]+":3000");
 
 	//Triggered on websocket open connection
 	ws.addEventListener("open", () =>{
@@ -198,3 +199,4 @@ function toggleMIDI() {
 		}));
 	}
 }
+

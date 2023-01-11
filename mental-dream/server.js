@@ -268,6 +268,7 @@ conf.on('set-enableOSC', (enable)=>{
  */
 
 const express = require('express')
+
 const app = express()
 const port = 3000
 
@@ -278,10 +279,6 @@ app.get('/', (req, res) => {
 })
 
 app.use(express.static('www/'+version))
-
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Webapp ready on http://localhost:${port}/`)
-})
 
 // handle 404 -> try to retrieve and store the file locally
 app.use(function(req, res) {
@@ -322,6 +319,18 @@ app.use(function(req, res) {
   })
 
 });
+
+const https = require('https')
+const key = fs.readFileSync('./key.pem')
+const cert = fs.readFileSync('./cert.pem')
+
+const server = https.createServer({key: key, cert: cert }, app);
+server.listen(port, '0.0.0.0', () => { console.log(`Webapp ready on https://localhost:${port}/`) });
+
+
+// app.listen(port, '0.0.0.0', () => {
+//   console.log(`Webapp ready on http://localhost:${port}/`)
+// })
 
 
 
@@ -424,7 +433,7 @@ class wsClient extends EventEmitter {
     if (!this.ip) return
 
     console.log('Subscribing to', this.name)
-    this.cli = new WebSocket('ws://'+this.ip+':8080');
+    this.cli = new WebSocket('wss://'+this.ip+':3000');
     
     // Connection opened
     this.cli.on('open', () => {
@@ -494,10 +503,12 @@ var interfaces = []
 const WebSocketServer = require('ws');
 
 // Creating a new websocket server on port 8080
-const wss = new WebSocketServer.Server({ port: 8080, host: '0.0.0.0' })
- 
+// const ws = new WebSocketServer.Server({ port: 8080, host: '0.0.0.0' })
+
+const ws = new WebSocketServer.Server({ server: server }) 
+
 // Creating connection using websocket
-wss.on("connection", ws => {  
+ws.on("connection", ws => {  
 
     // Receiving message
     ws.on("message", buffer => {
