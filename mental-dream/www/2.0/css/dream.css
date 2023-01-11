@@ -1,3 +1,7 @@
+:root {
+  color-scheme: dark;
+}
+
 body {
   padding: 20px;
 }
@@ -36,13 +40,12 @@ body {
 
 .testerz th, .testerz td {
   padding: 5px;
-  border: 1px solid black;
+  border: 1px solid #666;
 }
 
 .ctrls #add-device {
   margin: 0px;
   padding: 2px;
-  background-color: #DDD;
   border-radius: 0px;
   border: 1px solid black;
   cursor: pointer;
