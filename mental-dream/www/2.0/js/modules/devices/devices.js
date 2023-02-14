@@ -52,7 +52,15 @@ export class Devices {
 	}
 	
 	eventHandler(sensor){
-		sensor.ready(async () => {
+		sensor.ready(async () => 
+		{
+			// destroy already existing device
+			if(this.d[sensor.id]) {
+				// this.d[sensor.id].disconnect();
+				document.getElementById(sensor.id).remove()
+				delete this.d[sensor.id];
+			}
+
 			this.d[sensor.id] = sensor; //for multi-device
 
 			//Dynamic import widgets
@@ -74,7 +82,7 @@ export class Devices {
 
 		//Remove device from the devices (list) object
 		sensor.onDisconnected(id => {
-			delete this.d[id];
+			// delete this.d[id];
 			this.onDisconnectedChange( id );
 		});
 	}

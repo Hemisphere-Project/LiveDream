@@ -24,6 +24,7 @@
 
 .hyper-widget .head .name {
 	font-size: var(--hyper-widget-font-size);
+	width:80%;
 }
 
 .hyper-widget .head .status {

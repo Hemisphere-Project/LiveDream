@@ -111,8 +111,11 @@ devices.onData((sensor, samples) => {
 		} else {
 			uv.textContent = 'Railed';
 			uv.style.color = 'red';
-		}
+		}	
 	}
+
+	sensor.lastDataStamp = Date.now();
+
 });
 
 setInterval(() => {
@@ -133,17 +136,30 @@ setInterval(() => {
 		const status = hz > 245 ? '#28F728' : hz > 240 ? '#FF9929' : '#E42320';
 		freqContainer.style.backgroundColor = status;
 
-		sensor.eventCount();
+		container.querySelector('.name').style.backgroundColor = sensor.connected ? '#28F728' : '#E42320';
 
-		// Update batterie
+		// sensor is connected
+		if (sensor.connected) {
+			sensor.eventCount();
 
-		const battery = container.querySelector('.status');
+			// Update batterie
 
-		sensor.battery().then(level => {
-			//console.warn(`battery level: ${level}%`);
-			const bat = level > 20 ? '#28F728' : level > 10 ? '#FF9929' : '#E42320';
-			battery.style.backgroundColor = bat;
-		});
+			const battery = container.querySelector('.status');
+
+			sensor.battery().then(level => {
+				//console.warn(`battery level: ${level}%`);
+				const bat = level > 20 ? '#28F728' : level > 10 ? '#FF9929' : '#E42320';
+				battery.style.backgroundColor = bat;
+			});
+
+		}
+
+		// sensor is not connected -> try reconnect
+		else {
+			sensor.reconnect( devices.d[id].device );
+		}
+		
+
 	}
 
 }, 1000);
@@ -153,8 +169,8 @@ setInterval(() => {
 devices.onDisconnected(id => {
 	
 	//Remove Hyper Widget container
-	const container = document.getElementById(id);
-		  container.remove();
+	// const container = document.getElementById(id);
+	// 	  container.remove();
 
 });
 

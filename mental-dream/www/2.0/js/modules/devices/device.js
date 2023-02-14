@@ -195,6 +195,7 @@ export class Device {
 		this.connect();
 	}
 
+	
 	connect(){
 
 		const self = this;
@@ -223,12 +224,19 @@ export class Device {
 
 				const device = event.target;
 				self.onDisconnectedChange( device.id );
-				console.log(`Device ${device.id} is disconnected.`);
+				console.log(`Device ${device.id} is disconnected. Reconnecting..`);
+				self.connected = false;
+				// self.reconnect(device);
 			});
 
-			return device.gatt.connect();
+			return self.reconnect(device);
 
-		}).then(async gatt => {
+		})
+	}
+
+	reconnect(device){
+		const self = this;
+		return device.gatt.connect().then(async gatt => {
 
 			/* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
 				   DEVICE INFO
@@ -261,7 +269,7 @@ export class Device {
 			const batteryLevel          = await battery.getCharacteristic('battery_level');
 			
 			// FUNCTION
-			self.battery                = async () => { return (await batteryLevel.readValue()).getUint8(0) }
+			self.battery                = async () => { return (await batteryLevel.readValue()).getUint8(0) } 
 
 			// NOTIFICATION
 			//self.startNotification(batteryLevel, 'battery');
@@ -423,6 +431,8 @@ export class Device {
 				firmware:      self.device.firmware,
 				software:      self.device.software
 			});
+
+			self.connected = true;
 
 		}).catch(function(error) {
 			console.error(error);
