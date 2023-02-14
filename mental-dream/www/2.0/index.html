@@ -24,16 +24,17 @@
 <body>
 
 	<header> <p>Mental::<strong>Dream</strong> &nbsp;&nbsp;&nbsp;&nbsp;
-			<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;&nbsp;
+
+			<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;
 			<button class="bigBTN simple" onclick="
 				for (var d of document.querySelectorAll('.simple')) d.style.display='none'
 				for (var d of document.querySelectorAll('.full')) d.style.display='inline-block'
-				">FULL</button>&nbsp;&nbsp;
+				">FULL</button>
 			
 			<button class="bigBTN full" onclick="
 				for (var d of document.querySelectorAll('.full')) d.style.display='none'
 				for (var d of document.querySelectorAll('.simple')) d.style.display='inline-block'
-				">SIMPLE</button>&nbsp;&nbsp;
+				">SIMPLE</button>&nbsp;
 			
 			<button class="bigBTN" onclick="location.reload()">RELOAD</button>
 		</p>
