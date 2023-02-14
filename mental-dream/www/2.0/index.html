@@ -24,69 +24,85 @@
 <body>
 
 	<header> <p>Mental::<strong>Dream</strong> &nbsp;&nbsp;&nbsp;&nbsp;
-			<small>FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> </p></header>
+			<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;&nbsp;
+			<button class="bigBTN simple" onclick="
+				for (var d of document.querySelectorAll('.simple')) d.style.display='none'
+				for (var d of document.querySelectorAll('.full')) d.style.display='inline-block'
+				">FULL</button>&nbsp;&nbsp;
+			
+			<button class="bigBTN full" onclick="
+				for (var d of document.querySelectorAll('.full')) d.style.display='none'
+				for (var d of document.querySelectorAll('.simple')) d.style.display='inline-block'
+				">SIMPLE</button>&nbsp;&nbsp;
+			
+			<button class="bigBTN" onclick="location.reload()">RELOAD</button>
+		</p>
+
+	</header>
 	
 	<div class="ctrls">
 
-		 <br /><br/>
+		<br /><br/>
 
-		<u>Inputs:</u><br /><br/>
-		
-		Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
-			<br/>
+		<div class="full">
+			<u>Inputs:</u><br /><br/>
+			
+			Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
+				<br/>
 
-		APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br />
-			<br/>
-		Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br />
-			<br />
+			APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br />
+				<br/>
+			Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br />
+				<br />
+		</div>
 
-		Bluetooth data source :: <button id="addDevice" onclick="connect()">+ Add device</button>
+		Bluetooth data source :: <button id="addDevice" onclick="connect()" class="bigBTN">+ Add device</button>
 		<section id="device-hyper-widget-holder"></section>
 		<br /><br />
 
-
-		<u>Outputs:</u><br /><br />
-		Local server :: <span id="localStatus" class="cliStatus disconnected">disconnected</span><br/><br/>
-		<input type="checkbox" id="enableWS" checked disabled> WS &nbsp;&nbsp;cli = <span id="cliCount">0</span><br/>
-		<input type="checkbox" id="enableOSC" onchange="toggleOSC()"> OSC &nbsp;out = <i>localhost:3737</i> <br />
-		<input type="checkbox" id="enableMIDI" onchange="toggleMIDI()"> MIDI out = <i>DreamMidi</i>
-		<br /><br /><br />
-
-
-		<u>Data Averages:</u><br /><br />
-		<table class="testerz">
-			<tr><td></td><th>BANDS</th><th colspan="2">MIDI (note + cc64)</th><th colspan="2">OSC</th></tr>
-			<!-- <tr><td><button class="btnCheck" onclick="fakeEvent('raw')">test</button></td> 
-				<td>Raw</td>      					 		<td style="text-align: center;">ch.1</td><td id="avgMIDIraw" style="text-align: center;"></td>  	
-				<td>/eeg/avg/raw</td> <td id="avgraw"></td>    </tr>
-				 -->
-			<tr><td><button class="btnCheck" onclick="fakeEvent('delta')">test</button></td> 
-				<td>Delta (01-04Hz)</td>  			<td style="text-align: center;">ch.2</td><td id="avgMIDIdelta" style="text-align: center;"></td>  
-				<td>/eeg/avg/delta</td> <td id="avgdelta"></td> </tr>
-				
-			<tr><td><button class="btnCheck" onclick="fakeEvent('theta')">test</button></td> 
-				<td>Theta (04-08Hz)</td>  			<td style="text-align: center;">ch.3</td><td id="avgMIDItheta" style="text-align: center;"></td>  
-				<td>/eeg/avg/theta</td> <td id="avgtheta"></td> </tr>
-				
-			<tr><td><button class="btnCheck" onclick="fakeEvent('alpha')">test</button></td> 
-				<td>Alpha (09-12Hz)</td>  			<td style="text-align: center;">ch.4</td><td id="avgMIDIalpha" style="text-align: center;"></td>  
-				<td>/eeg/avg/alpha</td> <td id="avgalpha"></td> </tr>
-				
-			<tr><td><button class="btnCheck" onclick="fakeEvent('beta')">test</button></td> 
-				 <td>Beta &nbsp;(12-30Hz)</td>  <td style="text-align: center;">ch.5</td><td id="avgMIDIbeta" style="text-align: center;"></td>  	
-				<td>/eeg/avg/beta</td> <td id="avgbeta"></td>   </tr>
-				
-			<tr><td><button class="btnCheck" onclick="fakeEvent('gamma')">test</button></td> 
-				<td>Gamma (30-45Hz)</td>  			<td style="text-align: center;">ch.6</td><td id="avgMIDIgamma" style="text-align: center;"></td>  
-				<td>/eeg/avg/gamma</td> <td id="avggamma"></td> </tr>
-				
-		</table>
-		<br /><br /><br />
+		<div class="full">
+			<u>Outputs:</u><br /><br />
+			Local server :: <span id="localStatus" class="cliStatus disconnected">disconnected</span><br/><br/>
+			<input type="checkbox" id="enableWS" checked disabled> WS &nbsp;&nbsp;cli = <span id="cliCount">0</span><br/>
+			<input type="checkbox" id="enableOSC" onchange="toggleOSC()"> OSC &nbsp;out = <i>localhost:3737</i> <br />
+			<input type="checkbox" id="enableMIDI" onchange="toggleMIDI()"> MIDI out = <i>DreamMidi</i>
+			<br /><br /><br />
 
 
-		<!-- Console log -->
-		<pre id="log"></pre>
-		
+			<u>Data Averages:</u><br /><br />
+			<table class="testerz">
+				<tr><td></td><th>BANDS</th><th colspan="2">MIDI (note + cc64)</th><th colspan="2">OSC</th></tr>
+				<!-- <tr><td><button class="btnCheck" onclick="fakeEvent('raw')">test</button></td> 
+					<td>Raw</td>      					 		<td style="text-align: center;">ch.1</td><td id="avgMIDIraw" style="text-align: center;"></td>  	
+					<td>/eeg/avg/raw</td> <td id="avgraw"></td>    </tr>
+					-->
+				<tr><td><button class="btnCheck" onclick="fakeEvent('delta')">test</button></td> 
+					<td>Delta (01-04Hz)</td>  			<td style="text-align: center;">ch.2</td><td id="avgMIDIdelta" style="text-align: center;"></td>  
+					<td>/eeg/avg/delta</td> <td id="avgdelta"></td> </tr>
+					
+				<tr><td><button class="btnCheck" onclick="fakeEvent('theta')">test</button></td> 
+					<td>Theta (04-08Hz)</td>  			<td style="text-align: center;">ch.3</td><td id="avgMIDItheta" style="text-align: center;"></td>  
+					<td>/eeg/avg/theta</td> <td id="avgtheta"></td> </tr>
+					
+				<tr><td><button class="btnCheck" onclick="fakeEvent('alpha')">test</button></td> 
+					<td>Alpha (09-12Hz)</td>  			<td style="text-align: center;">ch.4</td><td id="avgMIDIalpha" style="text-align: center;"></td>  
+					<td>/eeg/avg/alpha</td> <td id="avgalpha"></td> </tr>
+					
+				<tr><td><button class="btnCheck" onclick="fakeEvent('beta')">test</button></td> 
+					<td>Beta &nbsp;(12-30Hz)</td>  <td style="text-align: center;">ch.5</td><td id="avgMIDIbeta" style="text-align: center;"></td>  	
+					<td>/eeg/avg/beta</td> <td id="avgbeta"></td>   </tr>
+					
+				<tr><td><button class="btnCheck" onclick="fakeEvent('gamma')">test</button></td> 
+					<td>Gamma (30-45Hz)</td>  			<td style="text-align: center;">ch.6</td><td id="avgMIDIgamma" style="text-align: center;"></td>  
+					<td>/eeg/avg/gamma</td> <td id="avggamma"></td> </tr>
+					
+			</table>
+			<br /><br /><br />
+
+
+			<!-- Console log -->
+			<pre id="log"></pre>
+		</div>
 	</div>
 
 	<!-- MAIN SCRIPT -->

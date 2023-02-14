@@ -10,6 +10,14 @@ body {
   color: red;
 }
 
+.bigBTN {
+  padding: 8px;
+}
+
+.full {
+  display: none;
+}
+
 .cliStatus.connected {
   color: green;
 }
