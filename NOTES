@@ -1,20 +1,21 @@
 
 
-TODO
+================================
+Pi - SYSTEM
 ================================
 
+HBerry 1.x (RPi4 - Manjaro)
+Pi-tools kiosk-chromium	
+LiveDream (pm2)
+
+External BT:
+https://www.amazon.fr/gp/product/B09KG7QQ5V/ref=ppx_yo_dt_b_asin_title_o01_s01?ie=UTF8&psc=1
+dtoverlay=disable-bt
 
 
 ================================
-
-
-
-
-
-
 
 To start: double-click on "mental-bridge"
-
 
 ================================
 
