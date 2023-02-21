@@ -6,11 +6,19 @@
 	--theme-font-family: 'IBM Plex Mono';
 	--hyper-widget-font-size: 15px;
 	--hyper-widget-padding: 10px;
+  color-scheme: dark;
 }
 
 *{
 	margin:0;padding:0;
 	font-family: var(--theme-font-family);
+}
+
+body {
+  padding: 20px;
+  font-size: 25px;
+	height: 100%;
+	padding-bottom: 0;
 }
 
 #add-device {
@@ -35,17 +43,25 @@
 	height: 100%;
 	font-size: 20px;
 	overflow: none;
+	/* width: 290px; */
 }
 #device-hyper-widget-holder .hyper-widget {
 	margin-bottom: 20px;
 	margin-right:  20px;
 	display: inline-block;
+	background-color: #CCC;
+}
+
+.hyper-widget {
+  color:black;
 }
 
 .hyper-widget .head .name {
 	padding: 4px 8px;
 	border-radius: 5px;
+	font-weight: bold;
 }
+
 
 /* ––––––––––––––––––––––––––––– */
 
@@ -61,3 +77,72 @@ path.line {
   stroke-width: 1px;
   pointer-events: none;
 }
+
+.cliStatus.disconnected {
+  color: red;
+}
+
+.bigBTN {
+  padding: 10px 15px 6px;
+  color: black;
+  float: right;
+  margin-left: 5px;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+.addBTN {
+  background-color: #3fdf3f;
+  border-color: #3fdf3f;
+  padding: 10px 15px 6px;
+  border-radius: 5px;
+  font-size: 30px;
+  color: black;
+}
+
+.full {
+  display: none;
+}
+
+
+.cliStatus.connected {
+  color: #3fdf3f;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.on {
+  background-color: #3fdf3f;
+}
+
+.testerz {
+  margin-left: 20px;
+}
+
+.testerz th{
+  min-width: 180px;
+}
+
+.testerz td{
+  min-width: 60px;
+}
+
+.testerz th, .testerz td {
+  padding: 5px;
+  border: 1px solid #666;
+}
+
+.ctrls #add-device {
+  margin: 0px;
+  padding: 2px;
+  border-radius: 0px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+

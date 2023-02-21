@@ -6,25 +6,21 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>LiveDream</title>
 	<link rel="stylesheet" href="css/style.css">
-	<link rel="stylesheet" href="css/dream.css">
 
 	<!-- LIBS -->
 	<script type="text/javascript" src="js/libs/d3.v4.min.js" defer></script>
 	<script type="text/javascript" src="js/libs/fili.js" defer></script>
 	<script type="text/javascript" src="js/libs/math.js" defer></script>
-	
-	<script src="https://kit.fontawesome.com/8fc24fb588.js" crossorigin="anonymous"></script>
-	
+	<script type="text/javascript" src="js/libs/fontawesome-kit.js"></script>
 	
 
-	<script defer>// STATS.JS monitor computer frameRate
+	<!-- <script defer>// STATS.JS monitor computer frameRate
 	  javascript:(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='js/libs/stats.min.js';document.head.appendChild(script);})()
-	</script>
+	</script> -->
 </head>
 <body>
 
-	<header> <p>Mental::<strong>Dream</strong> &nbsp;&nbsp;&nbsp;&nbsp;
-
+	<header> <p>Mental::<strong>Dream</strong> <small><span id="localIP">not connected..</span></small>&nbsp;&nbsp;&nbsp;&nbsp;<button id="addDevice" onclick="connect()" class="addBTN"> + </button>
 			<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;
 			<button class="bigBTN simple" onclick="
 				for (var d of document.querySelectorAll('.simple')) d.style.display='none'
@@ -38,34 +34,27 @@
 			
 			<button class="bigBTN" onclick="location.reload()">RELOAD</button>
 		</p>
-
 	</header>
+	<br />
 	
 	<div class="ctrls">
-
-		<br /><br/>
-
 		<div class="full">
 			<u>Inputs:</u><br /><br/>
-			
-			Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br />
-				<br/>
-
-			APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br />
-				<br/>
-			Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br />
-				<br />
+			Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br /><br/>
+			APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br /><br/>
+			Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br /><br />
+			<br /><br/>
 		</div>
 
 		<div>
-			Bluetooth::<strong>Devices</strong> 
+			<span class="full">Bluetooth::<strong>Devices</strong></span> 
 			<section id="device-hyper-widget-holder">
-				<button id="addDevice" onclick="connect()" class="addBTN"> + </button>
+				
 			</section>
 		</div>
-		<br /><br />
-
+		
 		<div class="full">
+			<br /><br />
 			<u>Outputs:</u><br /><br />
 			Local server :: <span id="localStatus" class="cliStatus disconnected">disconnected</span><br/><br/>
 			<input type="checkbox" id="enableWS" checked disabled> WS &nbsp;&nbsp;cli = <span id="cliCount">0</span><br/>

@@ -133,10 +133,10 @@ setInterval(() => {
 
 		const freqContainer = container.querySelector(".freq");
 
-		const status = hz > 245 ? '#28F728' : hz > 240 ? '#FF9929' : '#E42320';
+		const status = hz > 245 ? '#3fdf3f' : hz > 240 ? '#FF9929' : '#E42320';
 		freqContainer.style.backgroundColor = status;
 
-		container.querySelector('.name').style.backgroundColor = sensor.connected ? '#28F728' : '#E42320';
+		container.querySelector('.name').style.backgroundColor = sensor.connected ? '#3fdf3f' : '#E42320';
 
 		// sensor is connected
 		if (sensor.connected) {
@@ -148,7 +148,7 @@ setInterval(() => {
 
 			sensor.battery().then(level => {
 				//console.warn(`battery level: ${level}%`);
-				const bat = level > 20 ? '#28F728' : level > 10 ? '#FF9929' : '#E42320';
+				const bat = level > 20 ? '#3fdf3f' : level > 10 ? '#FF9929' : '#E42320';
 				battery.style.backgroundColor = bat;
 			});
 

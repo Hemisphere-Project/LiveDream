@@ -8,7 +8,19 @@ var request = require('request');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
+/*
+  Local IP
+*/
+var localIP = null
+const { networkInterfaces } = require('os');
+nets = networkInterfaces()
+if (nets['eth0']) localIP = nets['eth0'][0].address
+console.log('Local IP:', localIP)
 
+
+/*
+  Utils
+*/
 function linearMap(x, in_range, out_range) {
   var out = (x - in_range[0]) * (out_range[1] - out_range[0]) / (in_range[1] - in_range[0]) + out_range[0]
   if (out > out_range[1]) return out_range[1]
@@ -16,6 +28,9 @@ function linearMap(x, in_range, out_range) {
   return Math.round(out)
 }
 
+/*
+  Channels
+*/
 let channels = {
   "raw": 1,
   "delta": 2,
@@ -25,6 +40,9 @@ let channels = {
   "gamma": 6,
 }
 
+/*
+  OSC destination
+*/
 let oscDest = '127.0.0.1'
 
 /* ----------------------------------------------------------------------------------------------------
@@ -512,7 +530,10 @@ const WebSocketServer = require('ws');
 const ws = new WebSocketServer.Server({ server: server }) 
 
 // Creating connection using websocket
-ws.on("connection", ws => {  
+ws.on("connection", ws => {
+  
+    // Send local IP
+    ws.send(JSON.stringify({ 'type': 'localIP', 'ip': localIP }))
 
     // Receiving message
     ws.on("message", buffer => {
@@ -656,7 +677,7 @@ var isPi = require('detect-rpi');
 if (isPi()) {
   const { spawn } = require('child_process');
 
-  var args = ['--url', `https://localhost:3000` ]
+  var args = ['--url', `https://localhost:3000`, '--rotate', '90' ]
   
   console.log('kiosk', ...args)
   var kioskprocess = spawn('kiosk', args)

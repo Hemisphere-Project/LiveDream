@@ -36,12 +36,18 @@ function wsConnect( wsRoutine, uiRoutine ) {
 		}
 		setTimeout(function() { wsConnect( wsRoutine, uiRoutine); }, 1000);
 	});
-	
+
 	//Triggered on a new message send by the server
 	ws.addEventListener('message', function (event) {
 		// console.log(event.data);
 
 		let data = JSON.parse(event.data)
+
+		// Local IP
+		if ('type' in data && data['type'] == 'localIP')
+		{
+			document.getElementById('localIP').innerHTML = data['ip']
+		}
 		
 		// CONF received
 		if ('type' in data && data['type'] == 'conf') 
