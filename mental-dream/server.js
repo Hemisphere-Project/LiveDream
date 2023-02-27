@@ -8,25 +8,7 @@ var request = require('request');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
-/*
-  Local IP
-*/
-var localIP = null
-const { networkInterfaces } = require('os');
-nets = networkInterfaces()
-if (nets['eth0']) nets = nets['eth0']
-else if (nets['en0']) nets = nets['en0']
-else nets = null
-
-if (nets)
-for (n of nets)
-  if (n.family == 'IPv4') {
-    localIP = n.address
-    break
-  }
-  
-console.log('Local IP:', localIP)
-  
+ 
 
 
 /*
@@ -471,6 +453,7 @@ class wsClient extends EventEmitter {
     this.name = _name
     this.cli = null
     this.reco = null
+    this.ping = null
   }
 
   connect(_ip) {
@@ -489,6 +472,10 @@ class wsClient extends EventEmitter {
     
     // Connection opened
     this.cli.on('open', () => {
+
+      if (this.ping) clearInterval(this.ping)
+      this.ping = setInterval(() => { this.ping() }, 1000)
+
       // console.log('Subscribing to ', this.ip)
       this.cli.send('{"type":"subscribe"}');
       
@@ -540,6 +527,7 @@ class wsClient extends EventEmitter {
 
     // Connection closed
     this.cli.on('close', () => {
+      if (this.ping) clearInterval(this.ping)
       console.log('Disconnected from', this.name)
 
       // Inform interfaces
@@ -555,6 +543,10 @@ class wsClient extends EventEmitter {
     this.cli.on('error', (e) => {
       console.log('Error with remote', e)
     })
+  }
+
+  ping() {
+    this.cli.send('{"type":"ping"}');
   }
 
   state() {
@@ -586,11 +578,35 @@ const WebSocketServer = require('ws');
 
 const ws = new WebSocketServer.Server({ server: server }) 
 
+
 // Creating connection using websocket
 ws.on("connection", ws => {
-  
-    // Send local IP
-    ws.send(JSON.stringify({ 'type': 'localIP', 'ip': localIP }))
+
+    /*
+      Local IP
+    */
+
+    setInterval(()=>{
+      var localIP = null
+      const { networkInterfaces } = require('os');
+      nets = networkInterfaces()
+      if (nets['eth0']) nets = nets['eth0']
+      else if (nets['en0']) nets = nets['en0']
+      else nets = null
+
+      if (nets)
+      for (n of nets)
+        if (n.family == 'IPv4') {
+          localIP = n.address
+          break
+        }
+      
+      // Send local IP
+      ws.send(JSON.stringify({ 'type': 'localIP', 'ip': localIP }))
+      
+      console.log('Local IP:', localIP)
+    }, 5000)
+
 
     // Receiving message
     ws.on("message", buffer => {
@@ -788,5 +804,10 @@ else {
 ////////
 
 conf.load()
+
+
+
+
+
 
 
