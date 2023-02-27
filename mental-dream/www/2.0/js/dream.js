@@ -52,8 +52,14 @@ function wsConnect( wsRoutine, uiRoutine ) {
 		// CONF received
 		if ('type' in data && data['type'] == 'conf') 
 		{
+			console.log(data)
 			if('remoteIP' in data) {
 				document.getElementById('remoteIP').value = data['remoteIP']
+				document.getElementById('remoteIP2').value = data['remoteIP']
+				if (data['remoteIP'] == '')
+					document.getElementById('rpiStatus').style.display = 'none'
+				else
+					document.getElementById('rpiStatus').style.display = 'block'
 			}
 			if('dataFPS' in data) {
 				document.getElementById('dataFPS').value = data['dataFPS']

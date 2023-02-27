@@ -25,7 +25,7 @@ for (n of nets)
     break
   }
   
-  console.log('Local IP:', localIP)
+console.log('Local IP:', localIP)
   
 
 
@@ -203,6 +203,7 @@ function midiSend(channel, value, cconly)
 var resetTimout = null
 
 function midiStop() {
+  if (midi == null) return
   midi.send('cc', { controller: 100, value: 0, channel: 0 });
   midi.send('cc', { controller: 100, value: 127, channel: 0 });
   if (resetTimout) clearTimeout(resetTimout)
@@ -214,6 +215,7 @@ function midiStop() {
 }
 
 function midiStart() {
+  if (midi == null) return
   if (resetTimout) clearTimeout(resetTimout)
   midi.send('cc', { controller: 101, value: 0, channel: 0 });
   midi.send('cc', { controller: 101, value: 127, channel: 0 });
@@ -497,9 +499,9 @@ class wsClient extends EventEmitter {
     });
 
     // Listen for messages
-    this.cli.on('message', (bufffer) => 
+    this.cli.on('message', (buffer) => 
     {
-      var data = JSON.parse(bufffer)
+      var data = JSON.parse(buffer)
       
       // EEG received !
       if ('type' in data && data['type'] == 'eeg') 
@@ -509,8 +511,31 @@ class wsClient extends EventEmitter {
 
         // Forward to remote cli
         for (var i=0; i<subscribers.length; i++)
-          subscribers[i].send(bufffer)
+          subscribers[i].send(buffer)
       }
+
+      // SHOW CTRLS
+      if ('type' in data && data['type'] == 'show') 
+      {
+        if (data['action'] == 'play') {
+          console.log("SHOW PLAY")
+          midiStart()
+          oscSend('/start')
+
+        }
+        else if (data['action'] == 'stop') {
+          console.log("SHOW STOP")
+          midiStop()
+          oscSend('/wait')
+        }
+
+        // Forward to remote cli
+        for (var i=0; i<subscribers.length; i++)
+          subscribers[i].send(buffer)
+
+        return
+      } 
+
     });
 
     // Connection closed
@@ -641,6 +666,10 @@ ws.on("connection", ws => {
             midiStop()
             oscSend('/wait')
           }
+
+          // Forward to remote cli
+          for (var i=0; i<subscribers.length; i++)
+            subscribers[i].send(buffer)
 
           return
         } 
