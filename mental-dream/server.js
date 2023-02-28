@@ -453,7 +453,7 @@ class wsClient extends EventEmitter {
     this.name = _name
     this.cli = null
     this.reco = null
-    this.ping = null
+    this._ping = null
   }
 
   connect(_ip) {
@@ -474,7 +474,7 @@ class wsClient extends EventEmitter {
     this.cli.on('open', () => {
 
       if (this.ping) clearInterval(this.ping)
-      this.ping = setInterval(() => { this.ping() }, 1000)
+      this._ping = setInterval(() => { this.ping() }, 10000)
 
       // console.log('Subscribing to ', this.ip)
       this.cli.send('{"type":"subscribe"}');
@@ -527,7 +527,7 @@ class wsClient extends EventEmitter {
 
     // Connection closed
     this.cli.on('close', () => {
-      if (this.ping) clearInterval(this.ping)
+      if (this._ping) clearInterval(this._ping)
       console.log('Disconnected from', this.name)
 
       // Inform interfaces
@@ -547,6 +547,7 @@ class wsClient extends EventEmitter {
 
   ping() {
     this.cli.send('{"type":"ping"}');
+    console.log('ping ', this.ip)
   }
 
   state() {
