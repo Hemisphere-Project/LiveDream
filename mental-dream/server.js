@@ -798,11 +798,9 @@ else {
     console.log("SHOW STOP")
     midiStop()
     oscSend('/wait')
+    childProc.exec('open -a "Google Chrome" --args --incognito --disable-features=InfiniteSessionRestore --ignore-certificate-errors --test-type --autoplay-policy=no-user-gesture-required --disable-infobars https://localhost:3000');
   }, 15000)
   
-  setTimeout(()=>{
-    childProc.exec('open -a "Google Chrome" --args --incognito --disable-features=InfiniteSessionRestore --ignore-certificate-errors --test-type --autoplay-policy=no-user-gesture-required --disable-infobars https://localhost:3000');
-  }, 2000)
 
 }
 
