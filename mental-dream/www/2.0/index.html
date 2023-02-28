@@ -21,7 +21,7 @@
 <body>
 
 	<header> <p>Mental::<strong>Dream</strong> <small><span id="localIP">not connected..</span></small>&nbsp;&nbsp;&nbsp;&nbsp;<button id="addDevice" onclick="connect()" class="addBTN"> + </button>
-			<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;
+			
 			<button class="bigBTN simple" onclick="
 				for (var d of document.querySelectorAll('.simple')) d.style.display='none'
 				for (var d of document.querySelectorAll('.full')) d.style.display='inline-block'
@@ -35,12 +35,14 @@
 			<button class="bigBTN" onclick="location.reload()">RELOAD</button>
 		</p>
 	</header>
+	<small class="full">FPS=<input type="text" id="dataFPS" value="0" size="4"><button onclick="setFPS()">set</button></small> &nbsp;
+	<br />
 	<br />
 	
 	<div class="ctrls">
 		<div class="full">
 			<u>Inputs:</u><br /><br/>
-			Remote IP data source :: <span id="remoteStatus" class="cliStatus disconnected">disconnected</span> :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br /><br/>
+			Raspberry Pi IP data source :: <input type="text" id="remoteIP" value="" placeholder="<ip-address>"><button onclick="setRemote()">set</button><br /><br/>
 			APP open interfaces :: <span id="ifaceCount">0</span> <br /><small>web page opened, pointing to this APP</small><br /><br/>
 			Total active Devices :: <span id="devCount">0</span> <br /><small>distinct devices sending data from each interfaces and remote data source</small><br /><br />
 			<br /><br/>
@@ -97,6 +99,14 @@
 			<!-- Console log -->
 			<pre id="log"></pre>
 		</div>
+
+		<div class="mainCtrl">
+			<span id="rpiStatus">RPi :: <br /><span id="remoteStatus" class="cliStatus disconnected">disconnected</span></span><br /><br />
+
+			<button id="playShow" class="showBTN" onclick="playShow()">PLAY</button><br /><br />
+			<button id="stopShow" class="showBTN" onclick="stopShow()">STOP</button>
+		</div>
+		
 	</div>
 
 	<!-- MAIN SCRIPT -->

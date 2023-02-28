@@ -14,8 +14,19 @@ var util = require('util');
 var localIP = null
 const { networkInterfaces } = require('os');
 nets = networkInterfaces()
-if (nets['eth0']) localIP = nets['eth0'][0].address
-console.log('Local IP:', localIP)
+if (nets['eth0']) nets = nets['eth0']
+else if (nets['en0']) nets = nets['en0']
+else nets = null
+
+if (nets)
+for (n of nets)
+  if (n.family == 'IPv4') {
+    localIP = n.address
+    break
+  }
+  
+  console.log('Local IP:', localIP)
+  
 
 
 /*
@@ -187,6 +198,27 @@ function midiSend(channel, value, cconly)
     channel: channel-1
   });
   console.log('== MIDI CC64 ch.'+channel, value)
+}
+
+var resetTimout = null
+
+function midiStop() {
+  midi.send('cc', { controller: 100, value: 0, channel: 0 });
+  midi.send('cc', { controller: 100, value: 127, channel: 0 });
+  if (resetTimout) clearTimeout(resetTimout)
+  resetTimout = setTimeout(()=>{
+    midi.send('cc', { controller: 100, value: 0, channel: 0 });
+    midi.send('cc', { controller: 100, value: 127, channel: 0 });
+  }, 300)
+  console.log('== MIDI STOP')
+}
+
+function midiStart() {
+  if (resetTimout) clearTimeout(resetTimout)
+  midi.send('cc', { controller: 101, value: 0, channel: 0 });
+  midi.send('cc', { controller: 101, value: 127, channel: 0 });
+
+  console.log('== MIDI START')
 }
 
 function delayedRawMidi(i, channel, value, cconly) 
@@ -595,6 +627,26 @@ ws.on("connection", ws => {
           return
         } 
 
+        // SHOW CTRLS
+        if ('type' in data && data['type'] == 'show') 
+        {
+          if (data['action'] == 'play') {
+            console.log("SHOW PLAY")
+            midiStart()
+            oscSend('/start')
+
+          }
+          else if (data['action'] == 'stop') {
+            console.log("SHOW STOP")
+            midiStop()
+            oscSend('/wait')
+          }
+
+          return
+        } 
+
+        
+
         // EEG
         if ('type' in data && data['type'] == 'eeg')
         {        
@@ -684,6 +736,22 @@ if (isPi()) {
 }
 else {
   console.log('kiosk', 'not a pi')
+
+  var childProc = require('child_process');
+
+  childProc.exec('killall "Google Chrome"');
+  childProc.exec('killall "TouchDesigner"');
+
+  childProc.exec('open -a "Ableton Live 11 Suite" /Users/livedream_emard/Desktop/LiveDream/SON/LiveDream-MacMini/LiveDream-MacMini.als');
+
+  setTimeout(()=>{  
+    childProc.exec('open -a "TouchDesigner" /Users/livedream_emard/Desktop/LiveDream/LIVE_DREAMER/LIVE_DREAMER.toe');
+  }, 1000)
+  
+  setTimeout(()=>{
+    childProc.exec('open -a "Google Chrome" --args --incognito https://localhost:3000');
+  }, 2000)
+
 }
 
 ////////

@@ -21,6 +21,12 @@ body {
 	padding-bottom: 0;
 }
 
+.mainCtrl {
+  position: absolute;
+  top: 100px;
+  right:20px;
+}
+
 #add-device {
 	margin:20px;
 	padding: 10px 20px;
@@ -89,6 +95,24 @@ path.line {
   margin-left: 5px;
   border-radius: 5px;
   font-size: 20px;
+}
+
+.showBTN {
+  padding: 10px 15px 6px;
+  color: black;
+  margin-left: 5px;
+  border-radius: 5px;
+  font-size: 20px;
+}
+
+#playShow {
+  background-color: #3fdf3f;
+  border-color: #3fdf3f;
+}
+
+#stopShow {
+  background-color: red;
+  border-color: red;
 }
 
 .addBTN {

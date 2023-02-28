@@ -206,3 +206,21 @@ function toggleMIDI() {
 	}
 }
 
+
+/* ––––––––––––––––––––
+	  MAIN CTRLS
+–––––––––––––––––––– */
+
+function playShow() {
+	ws.send(JSON.stringify( {
+		'type': 'show',
+		'action': 'play'
+	}));
+}
+
+function stopShow() {
+	ws.send(JSON.stringify( {
+		'type': 'show',
+		'action': 'stop'
+	}));
+}
