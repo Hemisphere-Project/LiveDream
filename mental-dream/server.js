@@ -793,6 +793,12 @@ else {
   setTimeout(()=>{  
     childProc.exec('open -a "TouchDesigner" /Users/livedream_emard/Desktop/LiveDream/LIVE_DREAMER/LIVE_DREAMER.toe');
   }, 1000)
+
+  setTimeout(()=>{  
+    console.log("SHOW STOP")
+    midiStop()
+    oscSend('/wait')
+  }, 15000)
   
   setTimeout(()=>{
     childProc.exec('open -a "Google Chrome" --args --incognito https://localhost:3000');
