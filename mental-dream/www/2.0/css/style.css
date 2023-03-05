@@ -1,5 +1,5 @@
 @charset "UTF-8";
-@import url('https://assets.mentalista.fr/font/?family=mentalista-grotesque,ibm-plex-sans,ibm-plex-mono');
+@import 'fonts.css';
 @import 'hyper-widget.css';
 
 :root{
@@ -111,6 +111,11 @@ path.line {
 }
 
 #stopShow {
+  background-color: rgb(233, 206, 0);
+  border-color: rgb(233, 206, 0);
+}
+
+#quitShow {
   background-color: red;
   border-color: red;
 }

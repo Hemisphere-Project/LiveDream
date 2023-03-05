@@ -230,3 +230,10 @@ function stopShow() {
 		'action': 'stop'
 	}));
 }
+
+function quitShow() {
+	ws.send(JSON.stringify( {
+		'type': 'show',
+		'action': 'quit'
+	}));
+}

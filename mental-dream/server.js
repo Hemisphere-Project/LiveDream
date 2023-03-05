@@ -7,8 +7,8 @@ var fs = require('fs');
 var request = require('request');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
-
- 
+var isPi = require('detect-rpi');
+var childProc = require('child_process');
 
 
 /*
@@ -486,43 +486,8 @@ class wsClient extends EventEmitter {
     });
 
     // Listen for messages
-    this.cli.on('message', (buffer) => 
-    {
-      var data = JSON.parse(buffer)
-      
-      // EEG received !
-      if ('type' in data && data['type'] == 'eeg') 
-      {
-        // console.log('REMOTE DATA', data['data'])
-        localStorage.push(data['data'])
-
-        // Forward to remote cli
-        for (var i=0; i<subscribers.length; i++)
-          subscribers[i].send(buffer)
-      }
-
-      // SHOW CTRLS
-      if ('type' in data && data['type'] == 'show') 
-      {
-        if (data['action'] == 'play') {
-          console.log("SHOW PLAY")
-          midiStart()
-          oscSend('/start')
-
-        }
-        else if (data['action'] == 'stop') {
-          console.log("SHOW STOP")
-          midiStop()
-          oscSend('/wait')
-        }
-
-        // Forward to remote cli
-        for (var i=0; i<subscribers.length; i++)
-          subscribers[i].send(buffer)
-
-        return
-      } 
-
+    this.cli.on('message', (buffer) => {
+      processCommonMessage(buffer)
     });
 
     // Connection closed
@@ -612,6 +577,8 @@ ws.on("connection", ws => {
     // Receiving message
     ws.on("message", buffer => {
 
+        processCommonMessage(buffer)  // process show and eeg messages
+
         //Parses receive data as json
         const data = JSON.parse(buffer)
         // console.log(data) 
@@ -668,42 +635,6 @@ ws.on("connection", ws => {
           ws.send(JSON.stringify(Object.assign(conf.config, { 'type': 'conf' })))
           return
         } 
-
-        // SHOW CTRLS
-        if ('type' in data && data['type'] == 'show') 
-        {
-          if (data['action'] == 'play') {
-            console.log("SHOW PLAY")
-            midiStart()
-            oscSend('/start')
-
-          }
-          else if (data['action'] == 'stop') {
-            console.log("SHOW STOP")
-            midiStop()
-            oscSend('/wait')
-          }
-
-          // Forward to remote cli
-          for (var i=0; i<subscribers.length; i++)
-            subscribers[i].send(buffer)
-
-          return
-        } 
-
-        
-
-        // EEG
-        if ('type' in data && data['type'] == 'eeg')
-        {        
-          // Store data
-          // console.log('LOCAL DATA', data['data'])
-          localStorage.push(data['data'])
-
-          // Forward to remote cli
-          for (var i=0; i<subscribers.length; i++)
-            subscribers[i].send(buffer)      
-        }
 
         // PUSH data (triggered only from interface[0])
         if ('type' in data && data['type'] == 'push' && ws == interfaces[0])
@@ -767,10 +698,62 @@ ws.on("connection", ws => {
     }
 });
 
+
+// Process WS Message
+function processCommonMessage(buffer) 
+{
+  var data = JSON.parse(buffer)
+      
+  // EEG received !
+  if ('type' in data && data['type'] == 'eeg') 
+  {
+    // console.log('REMOTE DATA', data['data'])
+    localStorage.push(data['data'])
+
+    // Forward to remote cli
+    for (var i=0; i<subscribers.length; i++)
+      subscribers[i].send(buffer)
+  }
+
+  // SHOW CTRLS
+  if ('type' in data && data['type'] == 'show') 
+  {
+    if (data['action'] == 'play') {
+      console.log("SHOW PLAY")
+      midiStart()
+      oscSend('/start')
+
+    }
+    else if (data['action'] == 'stop') {
+      console.log("SHOW STOP")
+      midiStop()
+      oscSend('/wait')
+    }
+    else if (data['action'] == 'quit' ) {
+      console.log("SHOW QUIT")
+      midiStop()
+      oscSend('/wait')
+      if (!isPi()) {
+        childProc.exec('killall "Google Chrome"');
+        //childProc.exec('killall "Live"');
+        childProc.exec('killall "TouchDesigner"');
+        //childProc.exec('killall "Terminal"');
+        process.exit()
+      }
+    }
+
+    // Forward to remote cli
+    for (var i=0; i<subscribers.length; i++)
+      subscribers[i].send(buffer)
+
+  } 
+}
+
+
 //Inform the user that the server is active
 console.log("WebSocket server running on port 3000");
 
-var isPi = require('detect-rpi');
+
 
 if (isPi()) {
   const { spawn } = require('child_process');
@@ -782,8 +765,6 @@ if (isPi()) {
 }
 else {
   console.log('kiosk', 'not a pi')
-
-  var childProc = require('child_process');
 
   childProc.exec('killall "Google Chrome"');
   childProc.exec('killall "TouchDesigner"');
