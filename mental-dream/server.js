@@ -591,8 +591,8 @@ ws.on("connection", ws => {
       var localIP = null
       const { networkInterfaces } = require('os');
       nets = networkInterfaces()
-      if (nets['eth0']) nets = nets['eth0']
-      else if (nets['en0']) nets = nets['en0']
+      if (nets['wlan0']) nets = nets['wlan0']
+      else if (nets['en1']) nets = nets['en1']
       else nets = null
 
       if (nets)
