@@ -45,8 +45,9 @@ function wsConnect( wsRoutine, uiRoutine ) {
 
 		// Local IP
 		if ('type' in data && data['type'] == 'localIP')
-		{
-			document.getElementById('localIP').innerHTML = data['ip']
+		{	
+			if (data['ip'] == "")  document.getElementById('localIP').innerHTML = 'no network..'
+			else document.getElementById('localIP').innerHTML = data['ip']
 		}
 		
 		// CONF received
