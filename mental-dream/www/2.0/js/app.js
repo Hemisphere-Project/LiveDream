@@ -105,7 +105,7 @@ devices.onData((sensor, samples) => {
 	
 		const container = document.getElementById(sensor.id);
 		if (!container) {
-			console.error("ERROR: container not found", sensor)
+			console.warn("WARNING: data received but widget not found", sensor)
 			return
 		}
 		const uv        = container.querySelector(".uv .val");
@@ -131,6 +131,11 @@ setInterval(() => {
 		
 		const sensor        = devices.d[id];
 		const container     = document.getElementById(sensor.id);
+		if (!container) {
+			console.warn("WARNING: sensor in array but widget not found", sensor)
+			continue
+		}
+
 		const freq          = container.querySelector(".freq .val");
 		const hz            = sensor.sampleIndex * sensor.frame;
 
@@ -144,26 +149,27 @@ setInterval(() => {
 		container.querySelector('.name').style.backgroundColor = sensor.connected ? '#3fdf3f' : '#E42320';
 
 		// sensor is connected
-		if (sensor.connected) {
-			sensor.eventCount();
+		if (sensor.connected) 
+		{
+				sensor.eventCount();
 
-			// Update batterie
+				// Update batterie
+				const battery = container.querySelector('.status');
 
-			const battery = container.querySelector('.status');
-
-			sensor.battery().then(level => {
-				//console.warn(`battery level: ${level}%`);
-				const bat = level > 20 ? '#3fdf3f' : level > 10 ? '#FF9929' : '#E42320';
-				battery.style.backgroundColor = bat;
-			});
-
+				sensor.battery().then(level => {
+					//console.warn(`battery level: ${level}%`);
+					const bat = level > 20 ? '#3fdf3f' : level > 10 ? '#FF9929' : '#E42320';
+					battery.style.backgroundColor = bat;
+				})
+				.catch(function(e) {
+					console.warn(`Device ${self.id} battery quering error.. device is probably disconnected.`);
+				});
 		}
 
 		// sensor is not connected -> try reconnect
 		else {
 			sensor.reconnect( devices.d[id].device );
 		}
-		
 
 	}
 

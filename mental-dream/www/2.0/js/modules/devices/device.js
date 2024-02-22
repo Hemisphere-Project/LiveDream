@@ -37,6 +37,9 @@ export class Device {
 		this.busy        = false; // Boolean defining if a bluetooth action is in progress
 		this.isReady     = false; // Boolean defining if the device is ready
 		this.isStreaming = false; // Boolean defining if the device is streaming (duplicate with the ble cmd `this.isDeviceStreaming()`)
+		this.connected   = false; // Boolean defining if the device is connected
+		this.isConnecting = false; // Boolean defining if the device is connecting
+
 
 		// Widgets
 		this.widgets = new Object();
@@ -212,20 +215,21 @@ export class Device {
 			
 			self.device.addEventListener('gattserverdisconnected', event => {
 
-				for(let widget in self.widgets){
-				  if(Array.isArray(self.widgets[widget])){
-				    self.widgets[widget].forEach(widget => {
-				      widget.destroy();
-				    })
-				  } else {
-				    self.widgets[widget].destroy();
-				  }
-				}
+				// for(let widget in self.widgets){
+				//   if(Array.isArray(self.widgets[widget])){
+				//     self.widgets[widget].forEach(widget => {
+				//       widget.destroy();
+				//     })
+				//   } else {
+				//     self.widgets[widget].destroy();
+				//   }
+				// }  // -> Keep the widget !! (we are reconnecting)
 
 				const device = event.target;
 				self.onDisconnectedChange( device.id );
-				console.log(`Device ${device.id} is disconnected. Reconnecting..`);
+				console.warn(`Device ${device.id} is disconnected. Reconnecting..`);
 				self.connected = false;
+				self.isConnecting = false;
 				// self.reconnect(device);
 			});
 
@@ -236,7 +240,15 @@ export class Device {
 
 	reconnect(device){
 		const self = this;
+
+		if (this.isConnecting) {
+			// console.warn('Already trying to connect...');
+			return
+		}
+		this.isConnecting = true;
 		return device.gatt.connect().then(async gatt => {
+
+			console.log(`Device ${device.id} GATT connected, configuring...`);
 
 			/* â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“â€“
 				   DEVICE INFO
@@ -286,6 +298,8 @@ export class Device {
 			 * - Config        (read, write)
 			 * 
 			 */
+
+			console.log(`Device ${device.id} obtaining characteristics...`);
 			
 			// SERVICE
 			const adc                   = await gatt.getPrimaryService('12345678-1234-5678-1234-56789abcdef0');
@@ -326,6 +340,8 @@ export class Device {
 			self.readGain               = async ()           => { return (await gain.readValue()).getUint8(0); }
 			self.writeGain              = async (_gain)      => { await gain.writeValue( Uint8Array.of(_gain) ); self.gain = _gain; }
 
+			console.log(`Device ${device.id} obtaining parameters...`);
+
 			self.frame                  = await self.readSampleCount();
 			self.hasTimestamp           = (await timestampEnable.readValue()).getUint8(0) == 1 ? true : false;
 			self.chanArray              = await self.readChannels();
@@ -364,6 +380,7 @@ export class Device {
 
 				self.dsp.adcinterval = 4; //ms
 
+				console.log(`Device ${device.id} card M01 started !`);
 				//console.log("Mentalista M01 Auto detected");
 
 			} else if(self.device.model == "M02") {
@@ -376,7 +393,8 @@ export class Device {
 				self.scaleFactor = ADS1299scaleFactor;
 
 				self.dsp.adcinterval = 3.846; //ms
-
+				
+				console.log(`Device ${device.id} card M02 started !`);
 				//console.log("Mentalista M02 Auto detected");
 			
 			} else if(self.device.model == "M03"){
@@ -392,8 +410,13 @@ export class Device {
 
 				self.dsp.adcinterval = 4; //ms
 
+				console.log(`Device ${device.id} card M03 started !`);
 				//console.log("Mentalista M03 Auto detected");
 			}
+			else {
+				console.error(`Device ${device.id} model not recognized...`, self.device.model);
+			}
+			
 				
 			//DSP
 			self.dsp.chanCount  = self.channels;    
@@ -433,9 +456,12 @@ export class Device {
 			});
 
 			self.connected = true;
+			self.isConnecting = false;
 
 		}).catch(function(error) {
-			console.error(error);
+			console.error(`Device ${self.id} connection error: ${error}`);
+			self.connected = false;
+			self.isConnecting = false;
 		});
 	}
 
