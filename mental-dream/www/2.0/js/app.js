@@ -80,6 +80,7 @@ devices.ready(sensor => {
 		</div>`
 	);
 
+	sensor.writeGain(1);
 	sensor.play();
 
 	const container = document.getElementById(sensor.id);
@@ -101,8 +102,12 @@ devices.ready(sensor => {
 devices.onData((sensor, samples) => {
 	//If data is streaming
 	if(sensor.isStreaming){
-		
+	
 		const container = document.getElementById(sensor.id);
+		if (!container) {
+			console.error("ERROR: container not found", sensor)
+			return
+		}
 		const uv        = container.querySelector(".uv .val");
 
 		if(!sensor.dsp.samples[0].isRailed){

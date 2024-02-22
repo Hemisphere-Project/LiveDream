@@ -557,6 +557,7 @@ ws.on("connection", ws => {
       const { networkInterfaces } = require('os');
       nets = networkInterfaces()
       if (nets['eth0']) nets = nets['eth0']
+      else if (nets['en10']) nets = nets['en10']
       else if (nets['en1']) nets = nets['en1']
       else nets = null
 
