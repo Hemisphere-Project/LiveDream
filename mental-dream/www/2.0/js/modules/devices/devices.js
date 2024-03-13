@@ -57,7 +57,7 @@ export class Devices {
 			// destroy already existing device
 			if(this.d[sensor.id]) {
 				// this.d[sensor.id].disconnect();
-				document.getElementById(sensor.id).remove()
+				if (document.getElementById(sensor.id)) document.getElementById(sensor.id).remove()
 				delete this.d[sensor.id];
 			}
 

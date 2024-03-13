@@ -359,7 +359,7 @@ const key = fs.readFileSync('./key.pem')
 const cert = fs.readFileSync('./cert.pem')
 
 const server = https.createServer({key: key, cert: cert }, app);
-server.listen(port, '0.0.0.0', () => { console.log(`Webapp ready on https://localhost:${port}/`) });
+server.listen(port, '0.0.0.0', () => { console.log(`Webapp ready on https://0.0.0.0:${port}/`) });
 
 
 // app.listen(port, '0.0.0.0', () => {
@@ -759,10 +759,10 @@ console.log("WebSocket server running on port 3000");
 if (isPi()) {
   const { spawn } = require('child_process');
 
-  var args = ['--url', `https://localhost:3000`, '--rotate', '90' ]
-  
-  console.log('kiosk', ...args)
-  var kioskprocess = spawn('kiosk', args)
+  // --rotate 90 --devtools 
+  var command = 'kiosk --url https://127.0.0.1:3000 --extra "--vmodule=*bluetooth*=9 --enable-experimental-web-platform-features --force-device-scale-factor=1.8 --disable-pinch"'
+  console.log(command)
+  var kioskproc = spawn('sh', ['-c', command], { stdio: 'inherit' });
 }
 else {
   console.log('kiosk', 'not a pi')
@@ -780,7 +780,7 @@ else {
     console.log("SHOW STOP")
     midiStop()
     oscSend('/wait')
-    childProc.exec('open -a "Google Chrome" --args --incognito --disable-features=InfiniteSessionRestore --ignore-certificate-errors --test-type --autoplay-policy=no-user-gesture-required --disable-infobars https://localhost:3000');
+    childProc.exec('open -a "Google Chrome" --args --incognito --disable-features=InfiniteSessionRestore --ignore-certificate-errors --test-type --autoplay-policy=no-user-gesture-required --disable-infobars https://127.0.0.1:3000');
   }, 15000)
   
 
