@@ -77,17 +77,31 @@ devices.ready(sensor => {
 				<div class="uv"><p><span class="val">{{0}}</span> uV</p></div>
 				<div class="freq"><p><span  class="val">{{0}}</span> Hz</p></div>
 			</div>
+			<div class="close">
+				<button data-id="${sensor.id}" class="close-button">x</button>
+			</div>
 		</div>`
 	);
 
+	
+	
 	sensor.writeGain(1);
 	sensor.play();
-
+	
 	const container = document.getElementById(sensor.id);
 	const name      = container.querySelector(".name");
 	//const uv      = container.querySelector(".uv .val");
 	//const freq    = container.querySelector(".freq .val");
 
+	// .close-button click event
+	const close = container.querySelector('.close-button');
+	close.addEventListener('click', function() {
+		devices.d[sensor.id].shuttingDown = true;
+		devices.d[sensor.id].disconnect();
+		delete devices.d[sensor.id];
+		container.remove();
+	});
+	
 	name.textContent = sensor.name;
 
 	//Init the widget after device ready
@@ -143,7 +157,7 @@ setInterval(() => {
 
 		const freqContainer = container.querySelector(".freq");
 
-		const status = hz > 245 ? '#3fdf3f' : hz > 240 ? '#FF9929' : '#E42320';
+		const status = hz >= 135 ? '#3fdf3f' : hz >= 90 ? '#FF9929' : '#E42320';
 		freqContainer.style.backgroundColor = status;
 
 		container.querySelector('.name').style.backgroundColor = sensor.connected ? '#3fdf3f' : '#E42320';
@@ -164,16 +178,29 @@ setInterval(() => {
 				.catch(function(e) {
 					console.warn(`Device ${self.id} battery quering error.. device is probably disconnected.`);
 				});
+
+				// hide .close
+				container.querySelector('.close').style.display = 'none';
 		}
 
 		// sensor is not connected -> try reconnect
-		else {
+		else if (!sensor.shuttingDown) 
+		{
 			sensor.reconnect( devices.d[id].device );
+			console.warn(`Device ${sensor.id} is not connected.. trying to reconnect.`);
+			
+			// // log last seen distance
+			// let missingtime = Date.now() - sensor.lastseen;
+			// // console.warn(`Device ${sensor.id} last seen ${missingtime}ms ago.`);
+			// if (missingtime > 10000) {
+			// 	container.querySelector('.close').style.display = 'block';
+			// }
 		}
 
 	}
 
 }, 1000);
+
 
 
 //Is triggered when a device is disconnected
@@ -182,7 +209,7 @@ devices.onDisconnected(id => {
 	//Remove Hyper Widget container
 	// const container = document.getElementById(id);
 	// 	  container.remove();
-
+	console.warn('Device disconnected', id);
 });
 
 //Is triggered when the user sendRoutine is fired

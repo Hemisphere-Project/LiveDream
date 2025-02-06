@@ -39,7 +39,7 @@ export class Device {
 		this.isStreaming = false; // Boolean defining if the device is streaming (duplicate with the ble cmd `this.isDeviceStreaming()`)
 		this.connected   = false; // Boolean defining if the device is connected
 		this.isConnecting = false; // Boolean defining if the device is connecting
-
+		this.lastseen    = Date.now(); // Timestamp of the last data received
 
 		// Widgets
 		this.widgets = new Object();
@@ -90,7 +90,7 @@ export class Device {
 
 				this.dsp.populate(sample, this.scaleFactor);
 
-				//console.log(sample);
+				this.lastseen = Date.now();
 				
 				return self.onDataChange( sample );
 			},
@@ -227,7 +227,7 @@ export class Device {
 
 				const device = event.target;
 				self.onDisconnectedChange( device.id );
-				console.warn(`Device ${device.id} is disconnected. Reconnecting..`);
+				console.warn(`Device ${device.id} is disconnected.`);
 				self.connected = false;
 				self.isConnecting = false;
 				// self.reconnect(device);
@@ -247,6 +247,11 @@ export class Device {
 		}
 		this.isConnecting = true;
 		return device.gatt.connect().then(async gatt => {
+
+			if (self.shuttingDown) {
+				device.gatt.disconnect();
+				throw new Error('Device is shutting down...');
+			}
 
 			console.log(`Device ${device.id} GATT connected, configuring...`);
 
