@@ -760,7 +760,7 @@ if (isPi()) {
   const { spawn } = require('child_process');
 
   // --rotate 90 --devtools 
-  var command = 'kiosk --url https://127.0.0.1:3000 --extra "--vmodule=*bluetooth*=9 --enable-experimental-web-platform-features --force-device-scale-factor=1.8 --disable-pinch"'
+  var command = 'kiosk --url https://127.0.0.1:3000 --rotate 180 --extra "--vmodule=*bluetooth*=9 --enable-experimental-web-platform-features --force-device-scale-factor=1.8 --disable-pinch"'
   console.log(command)
   var kioskproc = spawn('sh', ['-c', command], { stdio: 'inherit' });
 }
